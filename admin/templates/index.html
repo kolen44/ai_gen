@@ -103,29 +103,25 @@
       <label class="pick" title="какой пайплайн запускать">
         <span>пайплайн</span>
         <select id="pipeline-choice" onchange="switchPipeline()">
-          <option value="flaq" selected>flaq — облачные модели</option>
-          <option value="runpod">ранпод — своя карта</option>
+          <option value="flaq">flaq — облачные модели</option>
+          <option value="runpod" selected>ранпод — своя карта</option>
         </select>
       </label>
       <label class="pick flaq-only" title="шаги 1 и 2: эталонное лицо, пак образцов и позы под видео">
         <span>лицо, пак и позы</span>
         <select id="engine">
-          <option value="seedream" selected>Seedream 4.5 · fal</option>
-          <option value="flaq-45">Seedream 4.5 · flaq</option>
+            <option value="flaq-45">Seedream 4.5 · flaq</option>
           <option value="flaq-5">Seedream 5.0 · flaq</option>
-          <option value="flaq-5pro">Seedream 5.0 Pro · flaq</option>
-          <option value="nbp">Nano Banana Pro · fal</option>
-        </select>
+          <option value="flaq-5pro" selected>Seedream 5.0 Pro · flaq</option>
+          </select>
       </label>
       <label class="pick flaq-only" title="шаг 3: переодевание готовых кадров в образы и сцены">
         <span>образы и сцены</span>
         <select id="restyle-engine">
-          <option value="seedream" selected>Seedream 4.5 · fal</option>
-          <option value="flaq-45">Seedream 4.5 · flaq</option>
+            <option value="flaq-45">Seedream 4.5 · flaq</option>
           <option value="flaq-5">Seedream 5.0 · flaq</option>
-          <option value="flaq-5pro">Seedream 5.0 Pro · flaq</option>
-          <option value="nbp">Nano Banana Pro · fal</option>
-        </select>
+          <option value="flaq-5pro" selected>Seedream 5.0 Pro · flaq</option>
+          </select>
       </label>
       <label class="pick flaq-only" title="соотношение сторон кадра"><span>формат</span>
         <select id="image-size">
@@ -137,8 +133,7 @@
         </select>
       </label>
       <label class="pick flaq-only" title="шаг 4: движок видео"><span>видео</span>
-        <select id="video-model" onchange="toggleDriver()">
-        <optgroup label="flaq — без контентных ограничений">
+        <select id="video-model">
         <option value="wan-3.0-image-to-video" selected>Wan 3.0</option>
         <option value="wan-2.6-image-to-video">Wan 2.6</option>
         <option value="seedance-v2.5-image-to-video">Seedance 2.5</option>
@@ -146,16 +141,6 @@
         <option value="flux-3.0-image-to-video">Flux 3.0</option>
         <option value="minimax-h3-image-to-video">MiniMax H3</option>
         <option value="veo3.1-image-to-video">Veo 3.1 — дороже</option>
-        </optgroup>
-        <optgroup label="fal — обнажённый кадр отклоняет">
-        <option value="kling3">Kling 3.0</option>
-        <option value="kling25">Kling 2.5</option>
-        <option value="wan22">Wan 2.2</option>
-        <option value="seedance">Seedance</option>
-        <option value="hailuo">Hailuo</option>
-        <option value="wan-animate-move">Wan Animate · move</option>
-        <option value="wan-animate-replace">Wan Animate · replace</option>
-        </optgroup>
         </select>
       </label>
       <label class="pick flaq-only" title="только для моделей flaq: цена считается за секунду ролика">
@@ -232,10 +217,6 @@
              style="width:64px;padding:4px 8px"></label>
       <span class="msg" id="msg"></span>
     </div>
-    <div id="driver-row" style="display:none">
-      <label class="f"><b>Драйвер-ролик</b> · Animate берёт движение отсюда и переносит на персонажа</label>
-      <input type="text" id="run-driver" placeholder="C:\Users\Admin\Downloads\38962-420224580.mp4">
-    </div>
     <pre class="log" id="log" style="display:none"></pre>
   </div>
 
@@ -267,60 +248,7 @@
   </details>
   {% endfor %}
 
-  <details>
-    <summary>Анимация по драйверу</summary>
-    <div class="body">
-      <div class="note">
-        Движение берётся с готового ролика, персонаж — с референсов. Каждый кадр генерируется
-        Seedream отдельно, поэтому возможно дрожание фона и одежды; предыдущий кадр подаётся
-        референсом в следующий, чтобы это уменьшить. Сначала прогони 4–6 кадров и посмотри полосу
-        <code>frames_strip.png</code>.
-      </div>
-
-      <div class="field">
-        <label class="f"><b>Драйвер-ролик</b> · путь к mp4 с нужным движением</label>
-        <input type="text" id="an-driver" placeholder="C:\Users\...\driver.mp4">
-      </div>
-
-      <div class="field">
-        <label class="f"><b>Референсы персонажа</b> · 2–3 кадра достаточно</label>
-        <div id="an-refs"></div>
-        <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
-          <button class="mini" onclick="addRef('')">Добавить путь</button>
-          <select id="an-pick" style="width:auto;max-width:320px"><option value="">выбрать из готовых…</option></select>
-        </div>
-      </div>
-
-      <div class="field">
-        <label class="f"><b>Сцена</b> · неизменное описание фона и света для всех кадров</label>
-        <input type="text" id="an-scene"
-               value="Outdoors on a bright dry salt flat under a clear blue sky, midday sun.">
-      </div>
-
-      <div class="grid">
-        <div class="field">
-          <label class="f"><b>Кадров из драйвера</b></label>
-          <input type="number" id="an-frames" value="24" min="4" max="120">
-        </div>
-        <div class="field">
-          <label class="f"><b>FPS готового ролика</b></label>
-          <input type="number" id="an-fps" value="8" min="4" max="24">
-        </div>
-        <div class="field">
-          <label class="f"><b>Только первые N</b> · для пробы, пусто = все</label>
-          <input type="number" id="an-limit" value="6" min="1" max="120">
-        </div>
-      </div>
-
-      <div class="opts" style="margin-bottom:12px">
-        <label><input type="checkbox" id="an-nochain"> без сцепки кадров (быстрее, дрожит сильнее)</label>
-      </div>
-
-      <button class="primary" onclick="startAnimate()">Запустить анимацию</button>
-    </div>
-  </details>
-
-  <details>
+    <details>
     <summary>Настройки<span class="count">{{ config.settings|length }}</span></summary>
     <div class="body">
       <div class="note">Всё, что лежит в .env кроме персонажа, списков и ключей. Новая переменная в файле появится здесь сама.</div>
@@ -489,13 +417,6 @@ async function checkPrompt(key) {
   el.className = 'msg ' + (d.allowed ? 'ok' : 'err');
 }
 
-function toggleDriver() {
-  const model = document.getElementById('video-model').value;
-  document.getElementById('driver-row').style.display =
-    model.startsWith('wan-animate') ? 'block' : 'none';
-}
-toggleDriver();
-
 // Выбор пайплайна прячет чужие настройки целиком. Смысл в том, чтобы не держать перед глазами
 // десяток движков, из которых половина к выбранному пути отношения не имеет.
 function switchPipeline() {
@@ -557,7 +478,6 @@ async function startRun() {
       engine: document.getElementById('engine').value,
       restyle_engine: document.getElementById('restyle-engine').value,
       image_size: document.getElementById('image-size').value,
-      driver: document.getElementById('run-driver').value,
     })});
   const d = await r.json();
   if (!d.ok) { msg(d.error, 'err'); return; }
@@ -569,56 +489,6 @@ async function startRun() {
 async function stopRun() {
   await fetch('/api/stop', {method:'POST'});
   msg('остановлено');
-}
-
-// --- анимация по драйверу ---
-
-function addRef(value) {
-  const host = document.getElementById('an-refs');
-  const row = document.createElement('div');
-  row.className = 'row';
-  row.innerHTML = `<input type="text" class="an-ref" placeholder="путь к кадру персонажа">
-                   <button class="mini x" title="удалить">×</button>`;
-  row.querySelector('input').value = value || '';
-  row.querySelector('button').onclick = () => row.remove();
-  host.appendChild(row);
-}
-addRef('');
-
-fetch('/api/images').then(r => r.json()).then(d => {
-  const sel = document.getElementById('an-pick');
-  d.images.forEach(img => {
-    const o = document.createElement('option');
-    o.value = img.path; o.textContent = img.label;
-    sel.appendChild(o);
-  });
-  sel.onchange = () => {
-    if (!sel.value) return;
-    const empty = [...document.querySelectorAll('.an-ref')].find(i => !i.value.trim());
-    if (empty) empty.value = sel.value; else addRef(sel.value);
-    sel.value = '';
-  };
-});
-
-async function startAnimate() {
-  const refs = [...document.querySelectorAll('.an-ref')].map(i => i.value).filter(v => v.trim());
-  const body = {
-    name: document.getElementById('run-name').value,
-    driver: document.getElementById('an-driver').value,
-    references: refs,
-    scene: document.getElementById('an-scene').value,
-    frames: document.getElementById('an-frames').value,
-    fps: document.getElementById('an-fps').value,
-    limit: document.getElementById('an-limit').value,
-    no_chain: document.getElementById('an-nochain').checked,
-  };
-  const r = await fetch('/api/run-animate', {method:'POST',
-    headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
-  const d = await r.json();
-  if (!d.ok) { msg(d.error, 'err'); return; }
-  msg('анимация идёт');
-  document.getElementById('log').style.display = 'block';
-  poll();
 }
 
 // ---- архив прогонов -------------------------------------------------------

@@ -56,7 +56,9 @@ FLAQ_MODELS = {
     "flaq": "seedream-v5.0-pro",   # прежнее имя, чтобы старые команды не сломались
 }
 
-ENGINE_CHOICES = ["nbp", "seedream", *FLAQ_MODELS]
+# Только flaq. fal убран из генерации: он отклоняет взрослый промпт до генерации —
+# HTTP 422 content_policy_violation, partner_validation_failed. Проверено запросом.
+ENGINE_CHOICES = list(FLAQ_MODELS)
 
 
 @dataclass
@@ -132,18 +134,7 @@ class Engine:
         # способ узнать цену кадра, не сверяясь со счётом вручную.
         self.last_credit: Optional[float] = None
 
-        if name == "nbp":
-            # Nano Banana Pro через fal — предпочтительный путь. Та же модель, что у Google,
-            # но без его квоты: прямой доступ упирается в generate_content_free_tier_requests
-            # с limit 0 и блокируется после нескольких запросов, а пак из 12 кадров так не собрать.
-            from pipeline.nbp_fal_client import NanoBananaProFal
-
-            self._client = NanoBananaProFal(image_size=image_size)
-        elif name == "seedream":
-            from pipeline.seedream_client import Seedream
-
-            self._client = Seedream()
-        elif name in FLAQ_MODELS:
+        if name in FLAQ_MODELS:
             # Seedream через flaq.ai. Отличие от seedream на fal: референс тут ровно один
             # (их API принимает единственный image_url), поэтому цепочка идентичности
             # опирается на лучший кадр, а не на несколько сразу.
@@ -167,10 +158,6 @@ class Engine:
 
     @property
     def errors(self):
-        if self.name == "nbp":
-            from pipeline.nbp_fal_client import NBPFalError
-
-            return NBPFalError
         if self.name in FLAQ_MODELS:
             from pipeline.flaq_client import FlaqError
 
@@ -531,7 +518,8 @@ def stage_video(
     model_key: str, duration: int, driver: Optional[Path], force: bool,
     video_resolution: str = "720p", video_aspect: str = "9:16",
 ) -> Optional[dict]:
-    from pipeline.fal_video import MODELS, FalVideoError, generate, measure
+    # measure() из fal_video — это замер по кадрам готового ролика, к провайдеру он не привязан.
+    from pipeline.fal_video import measure
     from pipeline.flaq_video import VIDEO_MODELS as FLAQ_VIDEO_MODELS
 
     # Провайдер — по имени модели: у flaq имена всегда с суффиксом -image-to-video.
@@ -819,11 +807,11 @@ def run(
 def _cli():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--output-dir", type=Path, required=True)
-    parser.add_argument("--pack-engine", type=str, default="seedream", choices=ENGINE_CHOICES,
+    parser.add_argument("--pack-engine", type=str, default="flaq-5pro", choices=ENGINE_CHOICES,
                         help="движок шага 1")
-    parser.add_argument("--pose-engine", type=str, default="seedream",
+    parser.add_argument("--pose-engine", type=str, default="flaq-5pro",
                         choices=ENGINE_CHOICES)
-    parser.add_argument("--restyle-engine", type=str, default="seedream",
+    parser.add_argument("--restyle-engine", type=str, default="flaq-5pro",
                         choices=ENGINE_CHOICES,
                         help="движок шага 3; flaq — Seedream 5.0 Pro, один референс вместо нескольких")
     parser.add_argument("--pack-target", type=int, default=8)

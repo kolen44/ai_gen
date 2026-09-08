@@ -441,6 +441,34 @@ def check_cloud_video(html: str, app_source: str) -> None:
     check("имена моделей flaq в интерфейсе известны клиенту", not unknown,
           f"нет в клиенте: {unknown}" if unknown else f"проверено {len(VIDEO_MODELS)}")
 
+    # Движок картинок по умолчанию не должен быть тем, который отказывается рисовать целевой
+    # контент. fal отклоняет взрослый промпт до генерации — HTTP 422 content_policy_violation,
+    # partner_validation_failed, проверено запросом. Умолчание обязано быть flaq.
+    for element in ("engine", "restyle-engine"):
+        block = re.search(rf'id="{element}">(.*?)</select>', html, re.S)
+        chosen = re.search(r'<option value="([^"]+)"[^>]*selected', block.group(1)) if block else None
+        check(f"умолчание движка {element} не блокирует NSFW",
+              bool(chosen) and chosen.group(1).startswith("flaq"),
+              f"в интерфейсе {chosen.group(1) if chosen else None}")
+    check("запасное значение движка в маршруте тоже flaq",
+          'payload.get("engine") or "flaq-5pro"' in app_source)
+
+    # Пайплайн по умолчанию — своя карта: там нет ни контентных ограничений, ни тарифа за
+    # генерацию, и именно на ней проект и разворачивается.
+    choice = re.search(r'id="pipeline-choice".*?<option value="([^"]+)"[^>]*selected', html, re.S)
+    check("пайплайн по умолчанию — ранпод",
+          bool(choice) and choice.group(1) == "runpod",
+          f"в интерфейсе {choice.group(1) if choice else None}")
+
+    # fal не должен предлагаться как движок генерации: он отклоняет взрослый контент и на
+    # промпте, и на входном кадре видео. Хранилище файлов и замер по кадрам ролика — остаются.
+    fal_models = ("kling3", "kling25", "wan22", "hailuo", "wan-animate-move",
+                  "wan-animate-replace", "seedream", "nbp")
+    offered = set(re.findall(r'<option value="([^"]+)"', html))
+    leftovers = sorted(set(fal_models) & offered)
+    check("fal не предлагается как движок генерации", not leftovers,
+          f"остались: {leftovers}" if leftovers else "проверено 8 имён")
+
 
 def check_imports() -> None:
     """Каждый модуль должен импортироваться.

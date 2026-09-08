@@ -319,7 +319,9 @@ def run_pipeline():
     # он же даёт лучшую метрику лица. NBP остаётся альтернативой и выбирается в интерфейсе.
     from pipeline.run_pipeline import ENGINE_CHOICES
 
-    engine = str(payload.get("engine") or "seedream")
+    # flaq, а не fal: fal отклоняет взрослый контент уже на промпте — HTTP 422
+    # content_policy_violation, partner_validation_failed. Проверено запросом.
+    engine = str(payload.get("engine") or "flaq-5pro")
     # Имя движка уходит в командную строку дочернего процесса — сверяем со списком,
     # а не полагаемся на то, что браузер прислал одно из значений выпадающего списка.
     for key in ("engine", "restyle_engine"):
@@ -339,59 +341,11 @@ def run_pipeline():
     if payload.get("video_resolution"):
         extra += ["--video-resolution", str(payload["video_resolution"])]
 
-    # Animate-режимы переносят движение с ролика — без него шаг видео просто пропустится,
-    # поэтому проверяем путь здесь, а не через полчаса на середине прогона.
-    if model.startswith("wan-animate"):
-        driver = Path(str(payload.get("driver", "")).strip('" '))
-        if not str(driver) or not driver.exists():
-            return jsonify(ok=False,
-                           error=f"для {model} нужен драйвер-ролик; не найден: {driver}"), 400
-        extra += ["--driver", str(driver)]
 
     output_dir = runs_root() / name
     try:
         tracker.start("run_pipeline.py", ["--output-dir", str(output_dir), *extra],
                       title=f"полный прогон · {name}")
-    except RuntimeError as e:
-        return jsonify(ok=False, error=str(e)), 409
-    return jsonify(ok=True)
-
-
-@app.route("/api/run-animate", methods=["POST"])
-def run_animate():
-    """Покадровая анимация: движение берётся с драйвер-ролика, персонаж — с референсов."""
-    payload = request.get_json(force=True)
-
-    driver = Path(payload.get("driver", "").strip('" '))
-    if not driver.exists():
-        return jsonify(ok=False, error=f"драйвер-ролик не найден: {driver}"), 400
-
-    refs = [Path(p.strip('" ')) for p in payload.get("references", []) if p.strip()]
-    missing = [str(p) for p in refs if not p.exists()]
-    if not refs:
-        return jsonify(ok=False, error="нужен хотя бы один референс персонажа"), 400
-    if missing:
-        return jsonify(ok=False, error=f"референсы не найдены: {', '.join(missing)}"), 400
-
-    name = re.sub(r"[^\w\-]+", "_", payload.get("name") or datetime.now().strftime("%m%d_%H%M"))
-    output_dir = runs_root() / f"animate_{name}"
-
-    args = [
-        "--references", *[str(p) for p in refs],
-        "--driver", str(driver),
-        "--output-dir", str(output_dir),
-        "--frames", str(int(payload.get("frames") or 24)),
-        "--fps", str(int(payload.get("fps") or 8)),
-    ]
-    if payload.get("scene"):
-        args += ["--scene", payload["scene"]]
-    if payload.get("limit"):
-        args += ["--limit", str(int(payload["limit"]))]
-    if payload.get("no_chain"):
-        args.append("--no-chain")
-
-    try:
-        tracker.start("seedream_animate.py", args, title=f"анимация · {name}")
     except RuntimeError as e:
         return jsonify(ok=False, error=str(e)), 409
     return jsonify(ok=True)
