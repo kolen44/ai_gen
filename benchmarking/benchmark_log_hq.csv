@@ -1,0 +1,13 @@
+stage,index,checkpoint,ip_adapter_weight,ip_adapter_scale,sampler,steps,resolution,seed,elapsed_seconds,gpu_type,hourly_rate_usd,cost_usd,vram_peak_gb,safety_gate_result,notes
+reference,,realvis-xl,,,,28,1024x1024,20260905,5.54,RTX 4090 (RunPod Secure Cloud),0.74,0.001139,,allowed,
+photo,1,realvis-xl,ip-adapter-faceid_sdxl.bin,,,28,1536x1536,20261905,9.07,RTX 4090 (RunPod Secure Cloud),0.74,0.001864,,ok,method=faceid nsfw_score=0.0001708191994111985 age=48.0 hires=1536x1536 cos_before=0.732 detailer=skipped
+reference,,realvis-xl,,,,28,1024x1024,20260905,5.31,RTX 4090 (RunPod Secure Cloud),0.74,0.001092,,allowed,
+photo,1,realvis-xl,ip-adapter-faceid_sdxl.bin,,,28,1536x1536,20261905,8.79,RTX 4090 (RunPod Secure Cloud),0.74,0.001807,,ok,method=faceid nsfw_score=0.0001708191994111985 age=48.0 hires=1536x1536 cos_before=0.732 detailer=skipped
+photo,2,realvis-xl,ip-adapter-faceid_sdxl.bin,,,28,1536x1536,20262905,8.92,RTX 4090 (RunPod Secure Cloud),0.74,0.001833,,ok,method=faceid nsfw_score=0.0001392706617480144 age=30.0 hires=1536x1536 cos_before=0.730 detailer=skipped
+photo,3,realvis-xl,ip-adapter-faceid_sdxl.bin,,,28,1536x1536,20263905,8.91,RTX 4090 (RunPod Secure Cloud),0.74,0.001831,,ok,method=faceid nsfw_score=0.002643643645569682 age=50.0 hires=1536x1536 cos_before=0.676 detailer=skipped
+photo,4,realvis-xl,ip-adapter-faceid_sdxl.bin,,,28,1536x1536,20264905,8.9,RTX 4090 (RunPod Secure Cloud),0.74,0.00183,,ok,method=faceid nsfw_score=0.00013878679601475596 age=39.0 hires=1536x1536 cos_before=0.753 detailer=skipped
+photo,5,realvis-xl,ip-adapter-faceid_sdxl.bin,,,28,1536x1536,20265905,8.98,RTX 4090 (RunPod Secure Cloud),0.74,0.001845,,ok,method=faceid nsfw_score=0.00018262605590280145 age=28.0 hires=1536x1536 cos_before=0.737 detailer=skipped
+photo,6,realvis-xl,ip-adapter-faceid_sdxl.bin,,,28,1536x1536,20266905,8.88,RTX 4090 (RunPod Secure Cloud),0.74,0.001825,,ok,method=faceid nsfw_score=0.0010061978828161955 age=34.0 hires=1536x1536 cos_before=0.722 detailer=skipped
+photo,7,realvis-xl,ip-adapter-faceid_sdxl.bin,,,28,1536x1536,20267905,8.87,RTX 4090 (RunPod Secure Cloud),0.74,0.001822,,ok,method=faceid nsfw_score=0.13872027397155762 age=25.0 hires=1536x1536 cos_before=0.720 detailer=skipped
+photo,8,realvis-xl,ip-adapter-faceid_sdxl.bin,,,28,1536x1536,20268905,9.03,RTX 4090 (RunPod Secure Cloud),0.74,0.001856,,ok,method=faceid nsfw_score=0.0005106140160933137 age=28.0 hires=1536x1536 cos_before=0.742 detailer=skipped
+video,1,wan2.2-ti2v-5b,,,,50,1280x704,20264905,548.82,RTX 4090 (RunPod Secure Cloud),0.74,0.112813,,passed,motion_seed=20764905 frames_checked=25/121

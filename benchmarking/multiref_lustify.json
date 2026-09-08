@@ -1,0 +1,38 @@
+{
+  "pod": "zdkruvs9i4x52w",
+  "model": "lustify",
+  "rows": [
+    {
+      "mode": "portrait",
+      "scale": 0.7,
+      "similarity_avg": 0.402,
+      "similarity_min": 0.387,
+      "seconds_avg": 13.5,
+      "errors": []
+    },
+    {
+      "mode": "portrait",
+      "scale": 0.85,
+      "similarity_avg": 0.35,
+      "similarity_min": 0.285,
+      "seconds_avg": 10.6,
+      "errors": []
+    },
+    {
+      "mode": "base",
+      "scale": 0.7,
+      "similarity_avg": 0.453,
+      "similarity_min": 0.298,
+      "seconds_avg": 13.6,
+      "errors": []
+    },
+    {
+      "mode": "base",
+      "scale": 0.85,
+      "similarity_avg": 0.505,
+      "similarity_min": 0.417,
+      "seconds_avg": 11.6,
+      "errors": []
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "pod": "zdkruvs9i4x52w",
+  "model": "realvis-xl",
+  "rows": [
+    {
+      "mode": "portrait",
+      "scale": 0.85,
+      "refs": 1,
+      "similarity_avg": 0.653,
+      "similarity_min": 0.631,
+      "seconds_avg": 14.5,
+      "errors": []
+    },
+    {
+      "mode": "portrait",
+      "scale": 0.85,
+      "refs": 2,
+      "similarity_avg": 0.463,
+      "similarity_min": 0.374,
+      "seconds_avg": 10.6,
+      "errors": []
+    },
+    {
+      "mode": "portrait",
+      "scale": 0.85,
+      "refs": 3,
+      "similarity_avg": 0.448,
+      "similarity_min": 0.429,
+      "seconds_avg": 10.4,
+      "errors": []
+    },
+    {
+      "mode": "portrait",
+      "scale": 0.85,
+      "refs": 5,
+      "similarity_avg": 0.432,
+      "similarity_min": 0.41,
+      "seconds_avg": 10.5,
+      "errors": []
+    }
+  ]
+}

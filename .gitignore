@@ -1,0 +1,15 @@
+# Ключи и карточка персонажа — здесь лежат токены RunPod, fal, flaq, HF.
+.env
+.env.bak*
+
+# Результаты прогонов и веса моделей: сотни мегабайт, воспроизводятся запуском.
+runs/
+output/
+models/
+dataset/
+
+# Бинарь RunPod CLI — ставится отдельно, см. deploy/runpod_setup.md
+runpodctl.exe
+
+__pycache__/
+*.pyc

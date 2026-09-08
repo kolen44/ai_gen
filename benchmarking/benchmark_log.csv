@@ -1,0 +1,51 @@
+stage,index,checkpoint,ip_adapter_weight,ip_adapter_scale,sampler,steps,resolution,seed,elapsed_seconds,gpu_type,hourly_rate_usd,cost_usd,vram_peak_gb,safety_gate_result,notes
+reference,,sdxl-base,,,,28,1024x1024,20260905,5.76,RTX 4090 (RunPod Secure Cloud),0.74,0.001184,,allowed,
+reference,,sdxl-base,,,,28,1024x1024,20260905,5.4,RTX 4090 (RunPod Secure Cloud),0.74,0.00111,,allowed,
+reference,,sdxl-base,,,,28,1024x1024,20260905,5.78,RTX 4090 (RunPod Secure Cloud),0.74,0.001187,,allowed,
+reference,,sdxl-base,,,,28,1024x1024,20260905,5.37,RTX 4090 (RunPod Secure Cloud),0.74,0.001104,,allowed,
+photo,1,sdxl-base,ip-adapter-faceid-plusv2_sdxl.bin,,,28,1024x1024,20261905,3.64,RTX 4090 (RunPod Secure Cloud),0.74,0.000748,,ok,nsfw_score=0.0004149669548496604 age=25.0
+photo,2,sdxl-base,ip-adapter-faceid-plusv2_sdxl.bin,,,28,1024x1024,20262905,3.73,RTX 4090 (RunPod Secure Cloud),0.74,0.000768,,ok,nsfw_score=0.00015509341028518975 age=57.0
+photo,3,sdxl-base,ip-adapter-faceid-plusv2_sdxl.bin,,,28,1024x1024,20263905,4.0,RTX 4090 (RunPod Secure Cloud),0.74,0.000823,,ok,nsfw_score=0.00046482542529702187 age=30.0
+photo,4,sdxl-base,ip-adapter-faceid-plusv2_sdxl.bin,,,28,1024x1024,20264905,3.92,RTX 4090 (RunPod Secure Cloud),0.74,0.000806,,ok,nsfw_score=0.00019072822760790586 age=37.0
+photo,5,sdxl-base,ip-adapter-faceid-plusv2_sdxl.bin,,,28,1024x1024,20265905,4.03,RTX 4090 (RunPod Secure Cloud),0.74,0.000828,,ok,nsfw_score=0.00011964101577177644 age=35.0
+photo,6,sdxl-base,ip-adapter-faceid-plusv2_sdxl.bin,,,28,1024x1024,20266905,4.01,RTX 4090 (RunPod Secure Cloud),0.74,0.000825,,ok,nsfw_score=0.0001241395075339824 age=34.0
+photo,7,sdxl-base,ip-adapter-faceid-plusv2_sdxl.bin,,,28,1024x1024,20267905,4.02,RTX 4090 (RunPod Secure Cloud),0.74,0.000826,,ok,nsfw_score=0.00017218792345374823 age=42.0
+photo,8,sdxl-base,ip-adapter-faceid-plusv2_sdxl.bin,,,28,1024x1024,20268905,3.92,RTX 4090 (RunPod Secure Cloud),0.74,0.000807,,ok,nsfw_score=0.00012076048733433709 age=41.0
+video,1,ltx-video,,,,30,768x512,20263905,33.04,RTX 4090 (RunPod Secure Cloud),0.74,0.006792,,passed,motion_seed=20763905 frames_checked=25/121
+reference,,sdxl-base,,,,28,1024x1024,20260905,5.5,RTX 4090 (RunPod Secure Cloud),0.74,0.00113,,allowed,
+reference,,sdxl-base,,,,28,1024x1024,20260905,5.4,RTX 4090 (RunPod Secure Cloud),0.74,0.001109,,allowed,
+reference,,sdxl-base,,,,28,1024x1024,20260905,5.4,RTX 4090 (RunPod Secure Cloud),0.74,0.00111,,allowed,
+reference,,sdxl-base,,,,28,1024x1024,20260905,5.48,RTX 4090 (RunPod Secure Cloud),0.74,0.001127,,allowed,
+photo,1,sdxl-base,ip-adapter.bin+ControlNet,,,28,1024x1024,20261905,6.8,RTX 4090 (RunPod Secure Cloud),0.74,0.001398,,ok,method=instantid nsfw_score=0.01637563668191433 age=29.0
+photo,2,sdxl-base,ip-adapter.bin+ControlNet,,,28,1024x1024,20262905,6.69,RTX 4090 (RunPod Secure Cloud),0.74,0.001375,,ok,method=instantid nsfw_score=0.00016017806774470955 age=33.0
+photo,3,sdxl-base,ip-adapter.bin+ControlNet,,,28,1024x1024,20263905,6.71,RTX 4090 (RunPod Secure Cloud),0.74,0.001379,,ok,method=instantid nsfw_score=0.0016474880976602435 age=25.0
+photo,4,sdxl-base,ip-adapter.bin+ControlNet,,,28,1024x1024,20264905,6.69,RTX 4090 (RunPod Secure Cloud),0.74,0.001376,,ok,method=instantid nsfw_score=0.00023054893244989216 age=31.0
+photo,5,sdxl-base,ip-adapter.bin+ControlNet,,,28,1024x1024,20265905,6.72,RTX 4090 (RunPod Secure Cloud),0.74,0.001381,,ok,method=instantid nsfw_score=0.0002454490459058434 age=49.0
+photo,6,sdxl-base,ip-adapter.bin+ControlNet,,,28,1024x1024,20266905,6.71,RTX 4090 (RunPod Secure Cloud),0.74,0.001379,,ok,method=instantid nsfw_score=0.0009964501950889826 age=44.0
+photo,7,sdxl-base,ip-adapter.bin+ControlNet,,,28,1024x1024,20267905,6.71,RTX 4090 (RunPod Secure Cloud),0.74,0.001379,,ok,method=instantid nsfw_score=0.0005567473126575351 age=55.0
+photo,8,sdxl-base,ip-adapter.bin+ControlNet,,,28,1024x1024,20268905,6.71,RTX 4090 (RunPod Secure Cloud),0.74,0.001379,,ok,method=instantid nsfw_score=0.00016924105875659734 age=32.0
+reference,,sdxl-base,,,,28,1024x1024,20260905,5.4,RTX 4090 (RunPod Secure Cloud),0.74,0.00111,,allowed,
+photo,1,sdxl-base,ip-adapter-faceid_sdxl.bin,,,28,1024x1024,20261905,3.73,RTX 4090 (RunPod Secure Cloud),0.74,0.000766,,ok,method=faceid nsfw_score=0.00048148081987164915 age=26.0
+photo,2,sdxl-base,ip-adapter-faceid_sdxl.bin,,,28,1024x1024,20262905,3.7,RTX 4090 (RunPod Secure Cloud),0.74,0.00076,,ok,method=faceid nsfw_score=0.00019590562442317605 age=63.0
+photo,3,sdxl-base,ip-adapter-faceid_sdxl.bin,,,28,1024x1024,20263905,3.7,RTX 4090 (RunPod Secure Cloud),0.74,0.000761,,ok,method=faceid nsfw_score=0.0004629935428965837 age=32.0
+photo,4,sdxl-base,ip-adapter-faceid_sdxl.bin,,,28,1024x1024,20264905,3.69,RTX 4090 (RunPod Secure Cloud),0.74,0.00076,,ok,method=faceid nsfw_score=0.00016143370885401964 age=30.0
+photo,5,sdxl-base,ip-adapter-faceid_sdxl.bin,,,28,1024x1024,20265905,3.7,RTX 4090 (RunPod Secure Cloud),0.74,0.00076,,ok,method=faceid nsfw_score=0.00012104903726140037 age=34.0
+photo,6,sdxl-base,ip-adapter-faceid_sdxl.bin,,,28,1024x1024,20266905,3.71,RTX 4090 (RunPod Secure Cloud),0.74,0.000762,,ok,method=faceid nsfw_score=0.0001341423048870638 age=32.0
+photo,7,sdxl-base,ip-adapter-faceid_sdxl.bin,,,28,1024x1024,20267905,3.71,RTX 4090 (RunPod Secure Cloud),0.74,0.000762,,ok,method=faceid nsfw_score=0.00015766671276651323 age=33.0
+photo,8,sdxl-base,ip-adapter-faceid_sdxl.bin,,,28,1024x1024,20268905,3.71,RTX 4090 (RunPod Secure Cloud),0.74,0.000763,,ok,method=faceid nsfw_score=0.00012088387302355841 age=62.0
+video,1,ltx-video,,,,30,768x512,20263905,111.87,RTX 4090 (RunPod Secure Cloud),0.74,0.022995,,passed,motion_seed=20763905 frames_checked=25/121
+video,1,ltx-video,,,,30,768x512,20263905,26.25,RTX 4090 (RunPod Secure Cloud),0.74,0.005396,,passed,motion_seed=20763905 frames_checked=25/121
+seedream,1,fal-ai/bytedance/seedream/v4.5/edit,,,,0,4096x4096,0,42.7,fal.ai (внешний провайдер),0.0,0.0,,ok,cos=0.725 refs=4 nsfw=0.16408739984035492 age=31.0
+seedream,2,fal-ai/bytedance/seedream/v4.5/edit,,,,0,4096x4096,0,45.14,fal.ai (внешний провайдер),0.0,0.0,,ok,cos=0.720 refs=4 nsfw=0.00010749378998298198 age=42.0
+seedream,3,fal-ai/bytedance/seedream/v4.5/edit,,,,0,4096x4096,0,42.89,fal.ai (внешний провайдер),0.0,0.0,,ok,cos=0.684 refs=4 nsfw=0.001463197055272758 age=59.0
+seedream,4,fal-ai/bytedance/seedream/v4.5/edit,,,,0,4096x4096,0,37.47,fal.ai (внешний провайдер),0.0,0.0,,ok,cos=0.700 refs=4 nsfw=0.0001486172404838726 age=37.0
+seedream,5,fal-ai/bytedance/seedream/v4.5/edit,,,,0,4096x4096,0,48.64,fal.ai (внешний провайдер),0.0,0.0,,ok,cos=0.744 refs=4 nsfw=0.0010452150600031018 age=54.0
+seedream,6,fal-ai/bytedance/seedream/v4.5/edit,,,,0,4096x4096,0,41.28,fal.ai (внешний провайдер),0.0,0.0,,ok,cos=0.741 refs=4 nsfw=0.0007907776162028313 age=31.0
+seedream,7,fal-ai/bytedance/seedream/v4.5/edit,,,,0,4096x4096,0,41.21,fal.ai (внешний провайдер),0.0,0.0,,ok,cos=0.713 refs=4 nsfw=0.0006548138917423785 age=36.0
+seedream,8,fal-ai/bytedance/seedream/v4.5/edit,,,,0,4096x4096,0,35.13,fal.ai (внешний провайдер),0.0,0.0,,ok,cos=0.715 refs=4 nsfw=0.00012761051766574383 age=30.0
+seedream,1,fal-ai/bytedance/seedream/v4.5/edit,,,,0,4096x4096,0,40.36,fal.ai (внешний провайдер),0.0,0.0,,rejected,cos=0.763 refs=4 nsfw=0.534677267074585 age=40.0
+seedream,2,fal-ai/bytedance/seedream/v4.5/edit,,,,0,4096x4096,0,61.13,fal.ai (внешний провайдер),0.0,0.0,,ok,cos=0.706 refs=4 nsfw=0.0002602750319056213 age=50.0
+video_fal,1,fal-ai/kling-video/v3/pro/image-to-video,,,,0,провайдер,0,332.93,fal.ai (внешний провайдер),0.0,0.0,,passed,model=kling3 duration=5 cos_src_avg=0.917 cos_ref_avg=0.811
+video_fal,1,fal-ai/wan/v2.2-14b/animate/replace,,,,0,провайдер,0,1890.03,fal.ai (внешний провайдер),0.0,0.0,,passed,model=wan-animate-replace duration=5 cos_src_avg=0.002 cos_ref_avg=-0.018
+video_fal,1,fal-ai/kling-video/v3/pro/image-to-video,,,,0,провайдер,0,170.91,fal.ai (внешний провайдер),0.0,0.0,,passed,model=kling3 duration=5 cos_src_avg=0.817 cos_ref_avg=0.661
+video_fal,1,fal-ai/kling-video/v3/pro/image-to-video,,,,0,провайдер,0,232.9,fal.ai (внешний провайдер),0.0,0.0,,passed,model=kling3 duration=5 cos_src_avg=0.730 cos_ref_avg=0.598

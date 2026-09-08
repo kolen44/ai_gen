@@ -1,0 +1,14 @@
+source,label,cosine_similarity,verdict
+video_frame,frame 0,0.9841,тот же человек
+video_frame,frame 10,0.8238,тот же человек
+video_frame,frame 20,0.8257,тот же человек
+video_frame,frame 30,0.8462,тот же человек
+video_frame,frame 40,0.7536,тот же человек
+video_frame,frame 50,0.8283,тот же человек
+video_frame,frame 60,0.8352,тот же человек
+video_frame,frame 70,0.7502,тот же человек
+video_frame,frame 80,0.753,тот же человек
+video_frame,frame 90,0.8069,тот же человек
+video_frame,frame 100,0.7999,тот же человек
+video_frame,frame 110,0.7759,тот же человек
+video_frame,frame 120,0.7808,тот же человек

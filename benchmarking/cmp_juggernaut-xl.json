@@ -1,0 +1,18 @@
+{
+  "pod": "zdkruvs9i4x52w",
+  "model": "juggernaut-xl",
+  "rows": [
+    {
+      "mode": "portrait",
+      "scale": 0.7,
+      "similarity_avg": null,
+      "similarity_min": null,
+      "seconds_avg": null,
+      "errors": [
+        "{\"detail\":\"OutOfMemoryError: CUDA out of memory. Tried to allocate 26.00 MiB. GPU 0 has a total capacity of 44.42 GiB of which 25.81 MiB is free. Process 1267726 has 44.39 GiB memory in use. Of the al",
+        "{\"detail\":\"OutOfMemoryError: CUDA out of memory. Tried to allocate 26.00 MiB. GPU 0 has a total capacity of 44.42 GiB of which 25.81 MiB is free. Process 1267726 has 44.39 GiB memory in use. Of the al",
+        "{\"detail\":\"OutOfMemoryError: CUDA out of memory. Tried to allocate 26.00 MiB. GPU 0 has a total capacity of 44.42 GiB of which 25.81 MiB is free. Process 1267726 has 44.39 GiB memory in use. Of the al"
+      ]
+    }
+  ]
+}

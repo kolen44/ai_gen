@@ -1,0 +1,18 @@
+{
+  "pod": "zdkruvs9i4x52w",
+  "model": "pony-realism-uncensored",
+  "rows": [
+    {
+      "mode": "portrait",
+      "scale": 0.7,
+      "similarity_avg": null,
+      "similarity_min": null,
+      "seconds_avg": null,
+      "errors": [
+        "{\"detail\":\"OutOfMemoryError: CUDA out of memory. Tried to allocate 1024.00 MiB. GPU 0 has a total capacity of 44.42 GiB of which 823.81 MiB is free. Process 1267726 has 43.61 GiB memory in use. Of the",
+        "{\"detail\":\"RuntimeError: Input type (c10::Half) and bias type (float) should be the same\"}",
+        "{\"detail\":\"RuntimeError: Input type (c10::Half) and bias type (float) should be the same\"}"
+      ]
+    }
+  ]
+}

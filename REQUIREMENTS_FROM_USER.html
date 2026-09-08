@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Synthetic Character Pipeline — что нужно от заказчика</title>
+<style>
+  @page { size: A4; margin: 22mm 18mm; }
+  :root {
+    --ink: #1b1f24;
+    --sub: #55606b;
+    --line: #dde2e7;
+    --accent: #b8452f;
+    --accent-soft: #fbeee9;
+    --code-bg: #f2f4f6;
+    --table-head: #eef1f3;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    font-size: 13.5px;
+    line-height: 1.55;
+    background: #fff;
+  }
+  .page {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 8mm 0 14mm;
+  }
+  h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  .lede {
+    color: var(--sub);
+    font-size: 13px;
+    margin: 0 0 22px;
+    max-width: 62ch;
+  }
+  h2 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 26px 0 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    page-break-after: avoid;
+  }
+  h2 .num {
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  p { margin: 8px 0; }
+  ul, ol { margin: 8px 0; padding-left: 20px; }
+  li { margin: 4px 0; }
+  code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.92em;
+    background: var(--code-bg);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+  strong { font-weight: 700; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 12.5px;
+  }
+  th, td {
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: var(--table-head);
+    font-weight: 700;
+  }
+  .callout {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+  }
+  .callout strong { color: var(--accent); }
+  .item {
+    page-break-inside: avoid;
+  }
+  hr {
+    border: none;
+    border-top: 1px solid var(--line);
+    margin: 26px 0 16px;
+  }
+  .closing {
+    color: var(--sub);
+    font-size: 12.5px;
+  }
+  .options {
+    margin: 10px 0;
+  }
+  .opt-label {
+    font-weight: 700;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Что нужно от тебя, чтобы это реально запустить</h1>
+  <p class="lede">Деньги, аккаунты, выбор лицензий и содержательные решения про персонажа — то, что нельзя решить без тебя.</p>
+
+  <div class="item">
+    <h2><span class="num">1.</span> GPU-провайдер и деньги</h2>
+    <ul>
+      <li>Аккаунт на RunPod (или Vast.ai) с привязанной картой/балансом.</li>
+      <li>Решение: даёшь API-ключ RunPod, чтобы под поднимался и останавливался автоматически из скрипта, или поднимаешь под сам по инструкции в <code>deploy/runpod_setup.md</code>, а работа идёт по SSH внутри уже поднятого пода.</li>
+      <li>Ориентировочный бюджет на прогон (RTX 4090, community cloud, ~$0.35–0.45/час): холодный старт + установка окружения 15–25 мин, генерация 8 фото + видео 5–10 мин активного GPU-времени. Полная сессия «от нуля до готовых 8 фото + видео» — в районе $0.3–0.6, не считая времени на ручной ревью между шагами.</li>
+    </ul>
+  </div>
+
+  <div class="item">
+    <h2><span class="num">2.</span> Чекпойнт (базовая модель)</h2>
+    <p>В <code>C:\projects\WET</code> (WetDreams — тот же продукт, боевой Telegram-бот + сайт) уже есть проверенный на проде RunPod-воркер с тремя реальными чекпойнтами на Civitai:</p>
+    <table>
+      <tr><th>Ключ</th><th>Файл</th><th>Civitai model_id</th><th>Планировщик</th></tr>
+      <tr><td><code>wai-nsfw-illustrious-sdxl</code> (дефолт у них)</td><td>wai-nsfw-illustrious-sdxl.safetensors</td><td>2167369</td><td>Euler Ancestral</td></tr>
+      <tr><td><code>real</code></td><td>realismIllustriousBy_v50FP16.safetensors</td><td>2091367</td><td>Euler Ancestral</td></tr>
+      <tr><td><code>cyberrealisticPony_v140</code></td><td>cyberrealisticPony_v140.safetensors</td><td>2255476</td><td>DPM Solver SDE + Karras</td></tr>
+    </table>
+    <p>Это Illustrious-XL / Pony-XL — самостоятельные SDXL-архитектурные файнтюны, не ванильный SDXL 1.0.</p>
+    <div class="callout">
+      <strong>Технический риск для проверки на живом поде, не заранее:</strong> IP-Adapter-FaceID для SDXL обучен на базовом SDXL 1.0 UNet. Архитектурно он совместим и с Illustrious/Pony, но точность identity-lock на них эмпирически не гарантирована на том же уровне, что на ванильном SDXL — это первое, что стоит замерить в тестовом прогоне, до генерации всех 8 фото.
+    </div>
+    <div class="options">
+      <p><span class="opt-label">(а)</span> взять готовый <code>real</code> или <code>wai-nsfw-illustrious-sdxl</code> — плюс: уже лицензионно разобран и проверен в проде на RunPod; минус: непроверенная FaceID-совместимость.</p>
+      <p><span class="opt-label">(б)</span> взять ванильный SDXL 1.0 base (CreativeML Open RAIL++-M, коммерческое использование разрешено) — плюс: FaceID для него validated по документации h94/IP-Adapter-FaceID; минус: фотореализм ниже специализированных чекпойнтов.</p>
+    </div>
+    <p>Скажи, какой вариант, или дай третий чекпойнт на свой вкус — подставлю его в <code>pipeline/generate_photos.py</code> (сейчас там ванильный SDXL 1.0 как безопасный дефолт).</p>
+  </div>
+
+  <div class="item">
+    <h2><span class="num">3.</span> Границы контента</h2>
+    <p>Судя по промпт-шаблонам <code>image_prompt_templates/realistic.txt</code> и <code>anime.txt</code> в <code>WET/tg-bot</code>, в проде уже принята формулировка: <strong>«fictional consenting adults (21+)»</strong>, explicit/NSFW разрешён, жёсткий запрет на несовершеннолетних и hard gore.</p>
+    <p>Если этот проект — расширение WetDreams (устойчивое лицо персонажа вместо каждый раз новой генерации), беру эту формулировку как рабочую вместо SFW-по-умолчанию из первой версии. Это меняет:</p>
+    <ul>
+      <li>safety-гейт (<code>safety/moderation_pipeline.py</code>) — NSFW сам по себе перестаёт быть поводом блокировать, блокирует только несовершеннолетие и совпадение с реальным лицом (одна строка в конфиге гейта, применю после подтверждения);</li>
+      <li>возрастной порог в character bible и в коде (<code>min_allowed_age</code>) — поднимаю до консистентности с «21+» вместо произвольных «25 с запасом от 18+».</li>
+    </ul>
+    <p>Если это <strong>не</strong> для WetDreams, а отдельный SFW-продукт — скажи прямо, оставлю как было (NSFW блокирует).</p>
+  </div>
+
+  <div class="item">
+    <h2><span class="num">4.</span> Character bible — «легенда» персонажа</h2>
+    <p>Шаблон в <code>character/character_bible_template.md</code>. Нужно заполнить или утвердить:</p>
+    <ul>
+      <li>имя персонажа (для внутренних файлов/промптов);</li>
+      <li>возрастной диапазон «выглядит на» — нужно число, не «взрослая»: входит в порог age-gate;</li>
+      <li>этнические/внешние черты, цвет глаз/волос, телосложение, отличительные черты;</li>
+      <li>общий стиль 8 сцен (город/офис/природа/студия — конкретный список, не абстрактный).</li>
+    </ul>
+  </div>
+
+  <div class="item">
+    <h2><span class="num">5.</span> Watchlist для проверки «не похожа на реального человека»</h2>
+    <p>Если есть конкретный список людей, на которых персонаж точно не должен быть похож (публичные фигуры, конкретные частные лица) — дай список имён или фото, соберу из них галерею эмбеддингов для сверки. Без списка safety-слой всё равно работает (age-gate, NSFW-gate, синтетическое происхождение лица), но проверка на конкретных «запрещённых» лицах активна только при наличии сравнения.</p>
+  </div>
+
+  <div class="item">
+    <h2><span class="num">6.</span> HuggingFace-токен</h2>
+    <p>Веса IP-Adapter-FaceID и модель InsightFace <code>antelopev2</code> лежат за gated-доступом на HuggingFace — нужен HF-аккаунт с принятыми лицензиями этих репозиториев и токен для скачивания на под.</p>
+  </div>
+
+  <div class="item">
+    <h2><span class="num">7.</span> Кто оперирует подом</h2>
+    <p>(а) готовлю одну команду/скрипт, запускаешь на поде сам и присылаешь логи/файлы — или<br>
+    (б) даёшь SSH/API доступ к поду, пайплайн гоняется напрямую, отчёт готовыми файлами и таблицей.</p>
+  </div>
+
+  <div class="item">
+    <h2><span class="num">8.</span> Что уже взято из WetDreams и что осталось решить</h2>
+    <ul>
+      <li>Три чекпойнта и негативный промпт для реалистичного стиля — взяты как готовые кандидаты (п.2); негативный промпт из <code>realistic.txt</code>-профиля уже подставлен в <code>pipeline/generate_photos.py</code> как дефолт.</li>
+      <li>Структура промпт-инжиниринга (LLM конвертирует character bible в теговый SDXL-промпт) — взята как паттерн, адаптирована под статичные 8 сцен вместо чата, лежит в новом <code>pipeline/prompt_engineering.py</code>. Нужен ключ OpenRouter (<code>OPENROUTER_API_KEY</code>) — тот же провайдер, что уже используется в WetDreams, либо свой LLM API.</li>
+      <li>RunPod-архитектура WetDreams (RabbitMQ + FastAPI result-consumer + S3 + вебхук) — не повторяю здесь: для разового прогона 8 фото + 1 видео это лишняя инфраструктура. Если цель — не разовая демонстрация, а постоянная фича внутри самого WetDreams, объём работы меняется качественно: новый чекпойнт-профиль в <code>MODEL_CONFIGS</code>, реализация <code>_apply_lora_weights</code>/IP-Adapter в <code>generation.py</code> (сейчас заглушка), video-worker как отдельный тип задачи в тех же очередях. Отдельный, кратно больший проект — скажи, если нужен именно он.</li>
+      <li>LoRA-хуки в проде WetDreams заведены в схеме (<code>lora_weights</code> в <code>GenerationRequest</code>), но не реализованы. IP-Adapter FaceID — не временный обходной путь, а пока единственный рабочий вариант identity-lock вообще.</li>
+    </ul>
+  </div>
+
+  <hr>
+  <p class="closing">Пока это не решено — весь код и workflow-логика написаны и готовы (<code>pipeline/</code>, <code>safety/</code>, <code>deploy/cost_calculator.py</code>, <code>scripts/seed_manager.py</code>), но не запускались на реальном GPU: цифры времени и стоимости в <code>benchmarking/benchmark_log.csv</code> появятся после первого прогона на арендованном поде.</p>
+
+</div>
+</body>
+</html>

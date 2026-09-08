@@ -1,0 +1,14 @@
+{
+  "pod": "zdkruvs9i4x52w",
+  "model": "realvis-xl",
+  "rows": [
+    {
+      "mode": "portrait",
+      "scale": 0.7,
+      "similarity_avg": 0.629,
+      "similarity_min": 0.602,
+      "seconds_avg": 14.0,
+      "errors": []
+    }
+  ]
+}

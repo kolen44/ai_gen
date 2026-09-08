@@ -1,0 +1,14 @@
+{
+  "pod": "zdkruvs9i4x52w",
+  "model": "lustify",
+  "rows": [
+    {
+      "mode": "portrait",
+      "scale": 0.7,
+      "similarity_avg": 0.551,
+      "similarity_min": 0.488,
+      "seconds_avg": 11.1,
+      "errors": []
+    }
+  ]
+}

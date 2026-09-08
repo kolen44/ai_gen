@@ -1,0 +1,9 @@
+source,label,cosine_similarity,verdict
+photo,photo_01_office.png,0.4783,"тот же человек, дрейф"
+photo,photo_02_street.png,0.2931,ДРУГОЙ человек
+photo,photo_03_studio_sweater.png,0.547,"тот же человек, дрейф"
+photo,photo_04_park_autumn.png,0.4602,"тот же человек, дрейф"
+photo,photo_05_cafe.png,0.5331,"тот же человек, дрейф"
+photo,photo_06_beach_swimsuit.png,0.4707,"тот же человек, дрейф"
+photo,photo_07_gym.png,0.3332,ДРУГОЙ человек
+photo,photo_08_rooftop_evening.png,0.438,ДРУГОЙ человек

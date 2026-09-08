@@ -1,0 +1,883 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Пайплайн персонажа</title>
+<style>
+  :root {
+    --bg:#0f1115; --card:#171a21; --input:#1e222b; --line:#2a2f3a;
+    --text:#e8eaf0; --muted:#98a1b0; --accent:#6ea8fe; --ok:#4ade80; --err:#f87171;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+       font:15px/1.55 -apple-system,"Segoe UI",Roboto,sans-serif}
+  main{max-width:900px;margin:0 auto;padding:24px 20px 60px;display:grid;gap:16px}
+
+  .bar{position:sticky;top:0;z-index:20;background:var(--card);border:1px solid var(--line);
+       border-radius:12px;padding:16px;display:grid;gap:12px}
+  .bar-top{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .bar-top input[type=text]{flex:1;min-width:150px}
+  .opts{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:13.5px}
+  .opts label{display:flex;align-items:center;gap:6px;cursor:pointer}
+
+  details{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  summary{padding:15px 18px;cursor:pointer;font-weight:600;list-style:none;
+          display:flex;align-items:center;gap:10px}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"▸";color:var(--muted);transition:transform .15s}
+  details[open] summary::before{transform:rotate(90deg)}
+  summary .count{margin-left:auto;color:var(--muted);font-weight:400;font-size:13px}
+  .body{padding:0 18px 18px}
+  .note{color:var(--muted);font-size:13px;margin:-4px 0 14px}
+
+  label.f{display:block;font-size:13px;color:var(--muted);margin:0 0 5px}
+  label.f b{color:var(--text);font-weight:500}
+  input[type=text],input[type=number],textarea,select{
+    width:100%;background:var(--input);color:var(--text);border:1px solid var(--line);
+    border-radius:8px;padding:10px 12px;font:inherit;resize:vertical}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
+  .field{margin-bottom:14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+
+  .row{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px}
+  .row .n{flex:0 0 26px;text-align:right;color:var(--muted);font-size:12px;padding-top:11px}
+  .row textarea{flex:1;min-height:58px}
+  .row .tools{display:flex;flex-direction:column;gap:3px}
+
+  button{background:var(--input);color:var(--text);border:1px solid var(--line);
+         border-radius:8px;padding:10px 16px;font:inherit;cursor:pointer}
+  button:hover{border-color:var(--accent)}
+  button.primary{background:var(--accent);color:#0b1020;border-color:var(--accent);font-weight:600}
+  button.mini{padding:3px 8px;font-size:12px}
+  button.mini.x:hover{border-color:var(--err);color:var(--err)}
+  button:disabled{opacity:.45;cursor:not-allowed}
+
+  .msg{font-size:13.5px;color:var(--muted)}
+  .msg.ok{color:var(--ok)} .msg.err{color:var(--err)}
+  pre.log{background:#0b0d12;border:1px solid var(--line);border-radius:8px;padding:12px;
+          max-height:300px;overflow:auto;font-size:12.5px;white-space:pre-wrap;margin:0}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  pre.podlog{background:#f6f6f6;padding:8px;font-size:12px;max-height:260px;overflow:auto;white-space:pre-wrap}
+  th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
+  th{color:var(--muted);font-weight:500}
+  .secret{display:flex;gap:8px}
+  .secret input{flex:1}
+
+  .pick{display:flex;flex-direction:column;gap:3px}
+  /* Атрибут hidden по умолчанию задаёт display:none, но любой явный display в наших
+     правилах его перебивает — поля с классом .pick оставались видимыми при переключении
+     пайплайна. Поэтому !important: это единственный способ, которым hidden работает
+     поверх собственных стилей. */
+  [hidden]{display:none !important}
+  .pick > span{font-size:11px;color:var(--muted);letter-spacing:.02em}
+  .pick select{width:auto}
+  .mono{font-family:ui-monospace,Consolas,monospace;font-size:12px;color:var(--muted)}
+  .runs tr{cursor:pointer}
+  .runs tr:hover td{background:var(--input)}
+  .runs tr.on td{background:var(--input);color:var(--accent)}
+  .thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;
+          margin:10px 0 4px}
+  .thumbs a{display:block;border:1px solid var(--line);border-radius:8px;overflow:hidden;
+            background:var(--input)}
+  .thumbs a:hover{border-color:var(--accent)}
+  .thumbs img{width:100%;height:120px;object-fit:cover;display:block}
+  .thumbs .cap{font-size:11px;color:var(--muted);padding:4px 6px;text-align:center;
+               white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .detail{border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:14px;
+          background:var(--input)}
+  .detail h3{margin:0 0 4px;font-size:15px}
+  .detail h4{margin:16px 0 6px;font-size:13px;color:var(--muted);font-weight:600;
+             text-transform:uppercase;letter-spacing:.04em}
+  .detail video{width:100%;max-width:520px;border-radius:8px;display:block}
+  .prompt{font-size:12px;color:var(--muted);max-width:420px;white-space:normal}
+  .bad{color:var(--err)} .good{color:var(--ok)}
+</style>
+</head>
+<body>
+<main>
+
+  <div class="bar">
+    <div class="bar-top">
+      <input type="text" id="run-name" placeholder="имя прогона (необязательно)">
+      <label class="pick" title="какой пайплайн запускать">
+        <span>пайплайн</span>
+        <select id="pipeline-choice" onchange="switchPipeline()">
+          <option value="flaq" selected>flaq — облачные модели</option>
+          <option value="runpod">ранпод — своя карта</option>
+        </select>
+      </label>
+      <label class="pick flaq-only" title="шаги 1 и 2: эталонное лицо, пак образцов и позы под видео">
+        <span>лицо, пак и позы</span>
+        <select id="engine">
+          <option value="seedream" selected>Seedream 4.5 · fal</option>
+          <option value="flaq-45">Seedream 4.5 · flaq</option>
+          <option value="flaq-5">Seedream 5.0 · flaq</option>
+          <option value="flaq-5pro">Seedream 5.0 Pro · flaq</option>
+          <option value="nbp">Nano Banana Pro · fal</option>
+        </select>
+      </label>
+      <label class="pick flaq-only" title="шаг 3: переодевание готовых кадров в образы и сцены">
+        <span>образы и сцены</span>
+        <select id="restyle-engine">
+          <option value="seedream" selected>Seedream 4.5 · fal</option>
+          <option value="flaq-45">Seedream 4.5 · flaq</option>
+          <option value="flaq-5">Seedream 5.0 · flaq</option>
+          <option value="flaq-5pro">Seedream 5.0 Pro · flaq</option>
+          <option value="nbp">Nano Banana Pro · fal</option>
+        </select>
+      </label>
+      <label class="pick flaq-only" title="соотношение сторон кадра"><span>формат</span>
+        <select id="image-size">
+        <option value="square_hd" selected>1:1</option>
+        <option value="portrait_16_9">9:16 вертикальный</option>
+        <option value="portrait_4_3">3:4</option>
+        <option value="landscape_16_9">16:9</option>
+        <option value="landscape_4_3">4:3</option>
+        </select>
+      </label>
+      <label class="pick flaq-only" title="шаг 4: движок видео"><span>видео</span>
+        <select id="video-model" onchange="toggleDriver()">
+        <optgroup label="flaq — без контентных ограничений">
+        <option value="wan-3.0-image-to-video" selected>Wan 3.0</option>
+        <option value="wan-2.6-image-to-video">Wan 2.6</option>
+        <option value="seedance-v2.5-image-to-video">Seedance 2.5</option>
+        <option value="seedance-v2.0-mini-image-to-video">Seedance 2.0 mini — дешевле</option>
+        <option value="flux-3.0-image-to-video">Flux 3.0</option>
+        <option value="minimax-h3-image-to-video">MiniMax H3</option>
+        <option value="veo3.1-image-to-video">Veo 3.1 — дороже</option>
+        </optgroup>
+        <optgroup label="fal — обнажённый кадр отклоняет">
+        <option value="kling3">Kling 3.0</option>
+        <option value="kling25">Kling 2.5</option>
+        <option value="wan22">Wan 2.2</option>
+        <option value="seedance">Seedance</option>
+        <option value="hailuo">Hailuo</option>
+        <option value="wan-animate-move">Wan Animate · move</option>
+        <option value="wan-animate-replace">Wan Animate · replace</option>
+        </optgroup>
+        </select>
+      </label>
+      <label class="pick flaq-only" title="только для моделей flaq: цена считается за секунду ролика">
+        <span>качество ролика</span>
+        <select id="video-resolution">
+        <option value="720p" selected>720p — $0.09/с</option>
+        <option value="1080p">1080p — $0.18/с</option>
+        <option value="480p">480p — $0.045/с</option>
+        </select>
+      </label>
+      <label class="pick runpod-only" title="чекпойнт генерации фото" hidden>
+        <span>чекпойнт</span>
+        <select id="run-model"></select>
+      </label>
+      <label class="pick runpod-only" title="полное число шагов или ускоряющая LoRA" hidden>
+        <span>качество видео</span>
+        <select id="run-fast-video">
+          <option value="0" selected>полное — 40 шагов, ~60 мин</option>
+          <option value="1">быстрое — 4 шага, ~13 мин</option>
+        </select>
+      </label>
+      <label class="pick runpod-only" title="сколько вариантов на образ, оставляя лучший" hidden>
+        <span>попыток на кадр</span>
+        <select id="run-candidates">
+          <option value="2" selected>две — лучше лицо</option>
+          <option value="3">три — ещё лучше, дольше</option>
+          <option value="1">одна — быстро</option>
+        </select>
+      </label>
+      <label class="pick runpod-only" title="модель генерации видео" hidden>
+        <span>видеомодель</span>
+        <select id="run-video-model">
+          <option value="wan2.2-i2v-a14b" selected>Wan2.2 A14B — 720p, два эксперта</option>
+          <option value="wan2.2-ti2v-5b">Wan2.2 TI2V-5B — 8 мин, качество ниже</option>
+        </select>
+      </label>
+      <label class="pick runpod-only" title="насколько близко кадрировать человека в ролике" hidden>
+        <span>план в ролике</span>
+        <select id="run-zoom">
+          <option value="1.25" selected>поясной — лицо крупнее</option>
+          <option value="1.6">крупный — лицо максимально</option>
+          <option value="1.0">как в кадре</option>
+        </select>
+      </label>
+      <label class="pick runpod-only" title="из какого списка брать кадр-исходник под ролик" hidden>
+        <span>кадр под видео</span>
+        <select id="run-video-source">
+          <option value="look" selected>из образов</option>
+          <option value="scene">из сцен</option>
+        </select>
+      </label>
+      <label class="pick runpod-only" title="сколько роликов снять; на каждый свой кадр" hidden>
+        <span>роликов</span>
+        <input id="run-videos" type="number" min="0" max="8" value="1" style="width:70px">
+      </label>
+      <label class="pick runpod-only" title="доводка лица в ролике покадрово" hidden>
+        <span>лицо в видео</span>
+        <select id="run-enhance">
+          <option value="both" selected>детейлер + GFPGAN — лучшее качество</option>
+          <option value="detailer">детейлер — точнее по личности</option>
+          <option value="gfpgan">GFPGAN — быстрее втрое</option>
+          <option value="none">без доводки</option>
+        </select>
+      </label>
+      <button class="primary" id="btn-run" onclick="startRun()">Запустить</button>
+      <button id="btn-save" onclick="save()">Сохранить</button>
+      <button id="btn-stop" onclick="stopRun()" disabled>Стоп</button>
+    </div>
+    <div class="opts">
+      <label><input type="checkbox" id="skip-video"> без видео</label>
+      <label class="flaq-only"><input type="checkbox" id="force"> переделать всё</label>
+      <label>кадров в паке <input type="number" id="pack-target" value="8" min="2" max="20"
+             title="на своей карте это число ОБРАЗОВ (RESTYLE_*), по кадру на образ"
+             style="width:64px;padding:4px 8px"></label>
+      <span class="msg" id="msg"></span>
+    </div>
+    <div id="driver-row" style="display:none">
+      <label class="f"><b>Драйвер-ролик</b> · Animate берёт движение отсюда и переносит на персонажа</label>
+      <input type="text" id="run-driver" placeholder="C:\Users\Admin\Downloads\38962-420224580.mp4">
+    </div>
+    <pre class="log" id="log" style="display:none"></pre>
+  </div>
+
+  <details open>
+    <summary>Персонаж</summary>
+    <div class="body">
+      <div class="note">Менять между прогонами одного персонажа нельзя — получится другой человек.</div>
+      <div class="grid">
+        {% for f in config.character %}
+        <div class="field">
+          <label class="f" for="{{ f.key }}"><b>{{ f.title }}</b>{% if f.hint %} · {{ f.hint }}{% endif %}</label>
+          <input type="text" id="{{ f.key }}" data-field="{{ f.key }}" value="{{ f.value }}">
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </details>
+
+  {# Список разделов берётся из config.lists, а не перечисляется здесь: дублирование уже привело
+     к падению страницы — POSE убрали из админки, а шаблон продолжал его запрашивать. #}
+  {% for prefix in config.lists.keys() %}
+  <details {% if prefix in ['RESTYLE','SCENE'] %}open{% endif %}>
+    <summary>{{ config.list_titles[prefix][0] }}<span class="count" id="count-{{ prefix }}">{{ config.lists[prefix]|length }}</span></summary>
+    <div class="body">
+      <div class="note">{{ config.list_titles[prefix][1] }}</div>
+      <div id="list-{{ prefix }}"></div>
+      <button onclick="addRow('{{ prefix }}')">Добавить</button>
+    </div>
+  </details>
+  {% endfor %}
+
+  <details>
+    <summary>Анимация по драйверу</summary>
+    <div class="body">
+      <div class="note">
+        Движение берётся с готового ролика, персонаж — с референсов. Каждый кадр генерируется
+        Seedream отдельно, поэтому возможно дрожание фона и одежды; предыдущий кадр подаётся
+        референсом в следующий, чтобы это уменьшить. Сначала прогони 4–6 кадров и посмотри полосу
+        <code>frames_strip.png</code>.
+      </div>
+
+      <div class="field">
+        <label class="f"><b>Драйвер-ролик</b> · путь к mp4 с нужным движением</label>
+        <input type="text" id="an-driver" placeholder="C:\Users\...\driver.mp4">
+      </div>
+
+      <div class="field">
+        <label class="f"><b>Референсы персонажа</b> · 2–3 кадра достаточно</label>
+        <div id="an-refs"></div>
+        <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
+          <button class="mini" onclick="addRef('')">Добавить путь</button>
+          <select id="an-pick" style="width:auto;max-width:320px"><option value="">выбрать из готовых…</option></select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="f"><b>Сцена</b> · неизменное описание фона и света для всех кадров</label>
+        <input type="text" id="an-scene"
+               value="Outdoors on a bright dry salt flat under a clear blue sky, midday sun.">
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label class="f"><b>Кадров из драйвера</b></label>
+          <input type="number" id="an-frames" value="24" min="4" max="120">
+        </div>
+        <div class="field">
+          <label class="f"><b>FPS готового ролика</b></label>
+          <input type="number" id="an-fps" value="8" min="4" max="24">
+        </div>
+        <div class="field">
+          <label class="f"><b>Только первые N</b> · для пробы, пусто = все</label>
+          <input type="number" id="an-limit" value="6" min="1" max="120">
+        </div>
+      </div>
+
+      <div class="opts" style="margin-bottom:12px">
+        <label><input type="checkbox" id="an-nochain"> без сцепки кадров (быстрее, дрожит сильнее)</label>
+      </div>
+
+      <button class="primary" onclick="startAnimate()">Запустить анимацию</button>
+    </div>
+  </details>
+
+  <details>
+    <summary>Настройки<span class="count">{{ config.settings|length }}</span></summary>
+    <div class="body">
+      <div class="note">Всё, что лежит в .env кроме персонажа, списков и ключей. Новая переменная в файле появится здесь сама.</div>
+      {% for f in config.settings %}
+      <div class="field">
+        <label class="f" for="{{ f.key }}"><b>{{ f.title }}</b>{% if f.hint %} · {{ f.hint }}{% endif %}</label>
+        {% if f.long %}
+          <textarea id="{{ f.key }}" data-field="{{ f.key }}" rows="3">{{ f.value }}</textarea>
+          <div style="margin-top:6px;display:flex;gap:10px;align-items:center">
+            <button class="mini" onclick="checkPrompt('{{ f.key }}')">Проверить фильтрами</button>
+            <span class="msg" id="chk-{{ f.key }}"></span>
+          </div>
+        {% else %}
+          <input type="text" id="{{ f.key }}" data-field="{{ f.key }}" value="{{ f.value }}">
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </details>
+
+  <details>
+    <summary>Ключи<span class="count">{{ config.secrets|length }}</span></summary>
+    <div class="body">
+      <div class="note">Хранятся в .env, страница отдаётся только на localhost.</div>
+      {% for f in config.secrets %}
+      <div class="field">
+        <label class="f" for="{{ f.key }}"><b>{{ f.key }}</b></label>
+        <div class="secret">
+          <input type="password" id="{{ f.key }}" data-field="{{ f.key }}" value="{{ f.value }}">
+          <button class="mini" onclick="toggleSecret('{{ f.key }}', this)">показать</button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </details>
+
+  <details id="pods-sec" ontoggle="if(this.open) loadPods(true)">
+    <summary>Свои карты (RunPod)<span class="count" id="pods-count">0</span></summary>
+    <div class="body">
+      <div class="note">Генерация на арендованной карте вместо внешних API: чекпойнты без
+        ограничений, свои настройки фиксации лица. <b>Карта тарифицируется всё время аренды</b>,
+        а не только во время генерации — удаляйте, когда закончили.</div>
+
+      <div class="field">
+        <label class="f">Карта</label>
+        <select id="pod-profile"></select>
+      </div>
+      <div class="field">
+        <label class="f">Чекпойнт</label>
+        <select id="pod-model"></select>
+      </div>
+      <div class="field">
+        <label class="f">Фиксация лица</label>
+        <select id="pod-mode"></select>
+        <div class="note" id="pod-mode-note"></div>
+      </div>
+      <div class="field">
+        <label class="f">Имя</label>
+        <input id="pod-name" placeholder="необязательно">
+      </div>
+      <div class="field">
+        <label class="f">Сцен в паке</label>
+        <input id="pod-frames" type="number" min="1" max="8" value="8">
+      </div>
+      <button onclick="createPod()">Арендовать и развернуть</button>
+      <span id="pod-msg"></span>
+
+      <div id="pods-list"></div>
+    </div>
+  </details>
+
+  <details id="runs-sec" ontoggle="if(this.open) loadRuns()">
+    <summary>Проекты<span class="count" id="runs-count">{{ runs|length }}</span></summary>
+    <div class="body">
+      <div class="note">Всё, что уже сгенерировано: кадры, ролики, промпты и метрики по каждому
+        кадру. Папка хранения — <span id="runs-root" class="mono"></span>, меняется через
+        <b>OUTPUT_DIR</b> в настройках.</div>
+      <div id="runs-list"></div>
+      <div id="run-detail"></div>
+    </div>
+  </details>
+
+</main>
+
+<script>
+const lists = {{ config.lists | tojson }};
+
+function makeRow(prefix, value) {
+  const el = document.createElement('div');
+  el.className = 'row';
+  el.innerHTML = `<div class="n"></div><textarea data-list="${prefix}"></textarea>
+    <div class="tools">
+      <button class="mini" title="выше">↑</button>
+      <button class="mini" title="ниже">↓</button>
+      <button class="mini x" title="удалить">×</button>
+    </div>`;
+  el.querySelector('textarea').value = value || '';
+  const [up, down, del] = el.querySelectorAll('button');
+  up.onclick = () => { const p = el.previousElementSibling; if (p) el.parentNode.insertBefore(el, p); renumber(prefix); };
+  down.onclick = () => { const n = el.nextElementSibling; if (n) el.parentNode.insertBefore(n, el); renumber(prefix); };
+  del.onclick = () => { el.remove(); renumber(prefix); };
+  return el;
+}
+
+function renumber(prefix) {
+  const rows = document.querySelectorAll(`#list-${prefix} .row`);
+  rows.forEach((r, i) => r.querySelector('.n').textContent = String(i + 1).padStart(2, '0'));
+  document.getElementById('count-' + prefix).textContent = rows.length;
+}
+
+function addRow(prefix) {
+  const host = document.getElementById('list-' + prefix);
+  const row = makeRow(prefix, '');
+  host.appendChild(row);
+  renumber(prefix);
+  row.querySelector('textarea').focus();
+}
+
+for (const [prefix, items] of Object.entries(lists)) {
+  const host = document.getElementById('list-' + prefix);
+  if (!host) continue;
+  items.forEach(v => host.appendChild(makeRow(prefix, v)));
+  renumber(prefix);
+}
+
+function toggleSecret(key, btn) {
+  const el = document.getElementById(key);
+  const hidden = el.type === 'password';
+  el.type = hidden ? 'text' : 'password';
+  btn.textContent = hidden ? 'скрыть' : 'показать';
+}
+
+function collect() {
+  const fields = {};
+  document.querySelectorAll('[data-field]').forEach(el => fields[el.dataset.field] = el.value);
+  const out = { fields, lists: {} };
+  for (const prefix of Object.keys(lists)) {
+    out.lists[prefix] = [...document.querySelectorAll(`#list-${prefix} textarea`)]
+      .map(t => t.value).filter(v => v.trim());
+  }
+  return out;
+}
+
+function msg(text, cls) {
+  const el = document.getElementById('msg');
+  el.textContent = text;
+  el.className = 'msg' + (cls ? ' ' + cls : '');
+}
+
+async function save() {
+  msg('сохраняю…');
+  const r = await fetch('/api/save', {method:'POST', headers:{'Content-Type':'application/json'},
+                                      body: JSON.stringify(collect())});
+  const d = await r.json();
+  if (d.ok) { msg('сохранено ' + d.at, 'ok'); return true; }
+  msg(d.error || 'ошибка', 'err');
+  return false;
+}
+
+async function checkPrompt(key) {
+  const el = document.getElementById('chk-' + key);
+  const r = await fetch('/api/check', {method:'POST', headers:{'Content-Type':'application/json'},
+                                       body: JSON.stringify({prompt: document.getElementById(key).value})});
+  const d = await r.json();
+  el.textContent = d.allowed ? 'проходит' : 'блокируется: ' + d.matched.join(', ');
+  el.className = 'msg ' + (d.allowed ? 'ok' : 'err');
+}
+
+function toggleDriver() {
+  const model = document.getElementById('video-model').value;
+  document.getElementById('driver-row').style.display =
+    model.startsWith('wan-animate') ? 'block' : 'none';
+}
+toggleDriver();
+
+// Выбор пайплайна прячет чужие настройки целиком. Смысл в том, чтобы не держать перед глазами
+// десяток движков, из которых половина к выбранному пути отношения не имеет.
+function switchPipeline() {
+  const runpod = document.getElementById('pipeline-choice').value === 'runpod';
+  document.querySelectorAll('.flaq-only').forEach(el => el.hidden = runpod);
+  document.querySelectorAll('.runpod-only').forEach(el => el.hidden = !runpod);
+}
+
+// Прогон на своей карте: находим готовый под и запускаем на нём весь пайплайн. Отдельной кнопки
+// не заводим — «Запустить» одна, меняется только то, что за ней стоит.
+async function startRunOnPod() {
+  const pods = (await (await fetch('/api/pods')).json()).pods || [];
+  // Карта должна быть и развёрнута, и РАБОТАТЬ. Проверка статуса обязательна: RunPod гасит поды
+  // сам (кончился баланс, вытеснение), и без неё интерфейс выбирал остановленную карту, а запуск
+  // падал с «воркер не отвечает» — сообщение верное, но причина из него не читается.
+  const ready = pods.filter(p => p.deploy_state === 'ready' && p.status === 'RUNNING');
+  if (!ready.length) {
+    const stopped = pods.filter(p => p.status !== 'RUNNING');
+    msg(stopped.length
+        ? 'карта остановлена (' + stopped[0].status + ') — поднимите новую в разделе «Свои карты»'
+        : 'нет готового пода — арендуйте карту в разделе «Свои карты»', 'err');
+    return;
+  }
+  const pod = ready[0];
+  const body = {
+    frames: Number(document.getElementById('pack-target').value) || 8,
+    photo_model: document.getElementById('run-model').value,
+    fast_video: document.getElementById('run-fast-video').value === '1',
+    candidates: Number(document.getElementById('run-candidates').value),
+    video_model: document.getElementById('run-video-model').value,
+    video_source: document.getElementById('run-video-source').value,
+    zoom: Number(document.getElementById('run-zoom').value),
+    videos: Number(document.getElementById('run-videos').value),
+    enhance: document.getElementById('run-enhance').value,
+    skip_video: document.getElementById('skip-video').checked,
+  };
+  const r = await (await fetch('/api/pods/' + pod.id + '/full-run', {
+    method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)
+  })).json();
+  msg(r.ok ? 'прогон запущен на ' + (pod.name || pod.id) : 'ошибка: ' + r.error,
+      r.ok ? 'ok' : 'err');
+  if (r.ok) poll();
+}
+
+async function startRun() {
+  if (document.getElementById('pipeline-choice').value === 'runpod') {
+    return startRunOnPod();
+  }
+
+  if (!await save()) return;
+  const r = await fetch('/api/run', {method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      name: document.getElementById('run-name').value,
+      skip_video: document.getElementById('skip-video').checked,
+      force: document.getElementById('force').checked,
+      pack_target: document.getElementById('pack-target').value,
+      video_model: document.getElementById('video-model').value,
+      video_resolution: document.getElementById('video-resolution').value,
+      engine: document.getElementById('engine').value,
+      restyle_engine: document.getElementById('restyle-engine').value,
+      image_size: document.getElementById('image-size').value,
+      driver: document.getElementById('run-driver').value,
+    })});
+  const d = await r.json();
+  if (!d.ok) { msg(d.error, 'err'); return; }
+  msg('прогон идёт');
+  document.getElementById('log').style.display = 'block';
+  poll();
+}
+
+async function stopRun() {
+  await fetch('/api/stop', {method:'POST'});
+  msg('остановлено');
+}
+
+// --- анимация по драйверу ---
+
+function addRef(value) {
+  const host = document.getElementById('an-refs');
+  const row = document.createElement('div');
+  row.className = 'row';
+  row.innerHTML = `<input type="text" class="an-ref" placeholder="путь к кадру персонажа">
+                   <button class="mini x" title="удалить">×</button>`;
+  row.querySelector('input').value = value || '';
+  row.querySelector('button').onclick = () => row.remove();
+  host.appendChild(row);
+}
+addRef('');
+
+fetch('/api/images').then(r => r.json()).then(d => {
+  const sel = document.getElementById('an-pick');
+  d.images.forEach(img => {
+    const o = document.createElement('option');
+    o.value = img.path; o.textContent = img.label;
+    sel.appendChild(o);
+  });
+  sel.onchange = () => {
+    if (!sel.value) return;
+    const empty = [...document.querySelectorAll('.an-ref')].find(i => !i.value.trim());
+    if (empty) empty.value = sel.value; else addRef(sel.value);
+    sel.value = '';
+  };
+});
+
+async function startAnimate() {
+  const refs = [...document.querySelectorAll('.an-ref')].map(i => i.value).filter(v => v.trim());
+  const body = {
+    name: document.getElementById('run-name').value,
+    driver: document.getElementById('an-driver').value,
+    references: refs,
+    scene: document.getElementById('an-scene').value,
+    frames: document.getElementById('an-frames').value,
+    fps: document.getElementById('an-fps').value,
+    limit: document.getElementById('an-limit').value,
+    no_chain: document.getElementById('an-nochain').checked,
+  };
+  const r = await fetch('/api/run-animate', {method:'POST',
+    headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+  const d = await r.json();
+  if (!d.ok) { msg(d.error, 'err'); return; }
+  msg('анимация идёт');
+  document.getElementById('log').style.display = 'block';
+  poll();
+}
+
+// ---- архив прогонов -------------------------------------------------------
+
+let runsLoaded = false;
+
+function fileUrl(path) { return '/api/file?path=' + encodeURIComponent(path); }
+
+async function loadRuns(force) {
+  if (runsLoaded && !force) return;
+  runsLoaded = true;
+  const box = document.getElementById('runs-list');
+  box.innerHTML = '<div class="note">загружаю…</div>';
+  const d = await (await fetch('/api/runs')).json();
+  document.getElementById('runs-root').textContent = d.root;
+  document.getElementById('runs-count').textContent = d.runs.length;
+  if (!d.runs.length) { box.innerHTML = '<div class="note">Пока пусто.</div>'; return; }
+
+  let html = '<table class="runs"><tr><th>Прогон</th><th>Когда</th><th>Кадров</th>'
+           + '<th>Принято</th><th>Лицо, ср.</th><th>Видео</th></tr>';
+  for (const r of d.runs) {
+    html += `<tr onclick="openRun('${r.name}', this)">
+      <td><b>${r.name}</b></td><td>${r.when}</td><td>${r.images}</td>
+      <td>${r.total ? r.accepted + '/' + r.total : '—'}</td>
+      <td>${r.avg === null ? '—' : r.avg}</td>
+      <td>${r.videos ? (r.video_model || 'да') : '—'}</td></tr>`;
+  }
+  box.innerHTML = html + '</table>';
+}
+
+async function openRun(name, tr) {
+  document.querySelectorAll('.runs tr').forEach(x => x.classList.remove('on'));
+  if (tr) tr.classList.add('on');
+  const box = document.getElementById('run-detail');
+  box.innerHTML = '<div class="note">открываю…</div>';
+
+  const r = await fetch('/api/runs/' + encodeURIComponent(name));
+  if (!r.ok) { box.innerHTML = '<div class="msg err">не удалось открыть прогон</div>'; return; }
+  const d = await r.json();
+  const data = d.data || {};
+
+  let h = `<div class="detail"><h3>${d.name}</h3>
+           <div class="mono">${d.path}</div>`;
+
+  const e = data.engines || {};
+  if (Object.keys(e).length) {
+    h += `<h4>Движки по шагам</h4><div class="note">пак — <b>${e.pack || '—'}</b>, `
+       + `позы — <b>${e.poses || '—'}</b>, образы — <b>${e.restyle || '—'}</b>, `
+       + `видео — <b>${e.video || '—'}</b></div>`;
+  }
+
+  const v = data.video;
+  if (v && v.file) {
+    h += '<h4>Видео</h4>'
+       + `<video controls preload="metadata" src="${fileUrl(v.file)}"></video>`
+       + `<div class="note">${v.model || ''} · из кадра ${(v.source || '').split(/[\/]/).pop()}`
+       + (v.elapsed_s ? ` · ${Math.round(v.elapsed_s)} с` : '') + '</div>';
+  }
+
+  for (const [stage, files] of Object.entries(d.stages || {})) {
+    h += `<h4>${stage} <span style="text-transform:none;font-weight:400">(${files.length})</span></h4>`;
+    h += '<div class="thumbs">';
+    for (const f of files) {
+      h += f.video
+        ? `<a href="${fileUrl(f.path)}" target="_blank"><div class="cap">▶ ${f.name}</div></a>`
+        : `<a href="${fileUrl(f.path)}" target="_blank">
+             <img loading="lazy" src="${fileUrl(f.path)}" alt="${f.name}">
+             <div class="cap">${f.name}</div></a>`;
+    }
+    h += '</div>';
+  }
+
+  const frames = data.frames || [];
+  if (frames.length) {
+    h += '<h4>Промпты и метрики</h4><table><tr><th>Кадр</th><th>Шаг</th><th>Промпт</th>'
+       + '<th>Лицо</th><th>NSFW</th><th>Возраст</th><th>Итог</th></tr>';
+    for (const f of frames) {
+      const ok = f.accepted;
+      h += `<tr><td>${f.name}</td><td>${f.stage}</td>
+        <td class="prompt">${(f.prompt || '').replace(/</g, '&lt;')}</td>
+        <td>${f.similarity === null ? '—' : f.similarity.toFixed(3)}</td>
+        <td>${f.nsfw_score === null ? '—' : f.nsfw_score.toFixed(3)}</td>
+        <td>${f.estimated_age === null ? '—' : f.estimated_age}</td>
+        <td class="${ok ? 'good' : 'bad'}">${ok ? 'принят'
+           : (f.reject_reason || 'отклонён').slice(0, 60)}</td></tr>`;
+    }
+    h += '</table>';
+  }
+
+  if (d.report) {
+    h += '<h4>Отчёт</h4><pre class="log" style="max-height:260px">'
+       + d.report.replace(/</g, '&lt;') + '</pre>';
+  }
+
+  box.innerHTML = h + '</div>';
+}
+
+let podCatalog = null;
+
+async function loadPodCatalog() {
+  const r = await (await fetch('/api/pods/catalog')).json();
+  if (!r.ok) { document.getElementById('pod-msg').textContent = r.error; return; }
+  podCatalog = r;
+  const prof = document.getElementById('pod-profile');
+  prof.innerHTML = r.gpus.map(g =>
+    `<option value="${g.key}" ${g.available ? '' : 'disabled'}>` +
+    `${g.label} — ${g.price ? '$' + g.price + '/час' : 'нет в наличии'}</option>`).join('');
+  const mdl = document.getElementById('pod-model');
+  mdl.innerHTML = r.models.filter(m => !m.needs_civitai).map(m =>
+    `<option value="${m.key}" data-faceid="${m.faceid}">${m.key} — ${m.repo}</option>`).join('');
+  document.getElementById('pod-mode').innerHTML =
+    r.modes.map(m => `<option value="${m}">${m}</option>`).join('');
+  // Тот же список чекпойнтов и в форме запуска: менять его между прогонами дешевле, чем
+  // поднимать новую карту.
+  const runModel = document.getElementById('run-model');
+  if (runModel) {
+    // lustify выбран по умолчанию: на нём замерен весь пайплайн, и он единственный из
+    // uncensored-чекпойнтов с внятной лицензией и рабочим FaceID.
+    runModel.innerHTML = r.models.filter(m => !m.needs_civitai && m.faceid)
+      .map(m => `<option value="${m.key}"${m.key === 'lustify' ? ' selected' : ''}>`
+                + `${m.key}</option>`).join('');
+  }
+  mdl.onchange = syncModeAvailability;
+  syncModeAvailability();
+}
+
+// Chroma и другие DiT-чекпойнты не принимают IP-Adapter FaceID вообще. Гасим выбор здесь, а не
+// показываем ошибку после десяти минут развёртывания и оплаченного GPU-времени.
+function syncModeAvailability() {
+  const opt = document.getElementById('pod-model').selectedOptions[0];
+  const ok = !opt || opt.dataset.faceid === 'true';
+  const mode = document.getElementById('pod-mode');
+  mode.disabled = !ok;
+  document.getElementById('pod-mode-note').textContent = ok
+    ? 'portrait — несколько ракурсов эталона, самый сильный лок лица'
+    : 'этот чекпойнт не поддерживает FaceID (архитектура не SDXL) — личность только через обучение LoRA';
+}
+
+async function createPod() {
+  if (!confirm('Арендовать карту? Оплата идёт всё время аренды, пока под не удалён.')) return;
+  const msg = document.getElementById('pod-msg');
+  msg.textContent = 'создаю…';
+  const body = {
+    profile: document.getElementById('pod-profile').value,
+    photo_model: document.getElementById('pod-model').value,
+    identity_mode: document.getElementById('pod-mode').value,
+    name: document.getElementById('pod-name').value,
+  };
+  const r = await (await fetch('/api/pods/create', {
+    method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)
+  })).json();
+  msg.textContent = r.ok ? 'создан: ' + r.pod_id + ', разворачиваю…' : 'ошибка: ' + r.error;
+  loadPods(true);
+}
+
+async function loadPods(force) {
+  if (!podCatalog) await loadPodCatalog();
+  const r = await (await fetch('/api/pods')).json();
+  const box = document.getElementById('pods-list');
+  if (!r.ok) { box.innerHTML = '<div class="note">RunPod недоступен: ' + r.error + '</div>'; return; }
+  document.getElementById('pods-count').textContent = r.pods.length;
+  if (!r.pods.length) { box.innerHTML = '<div class="note">арендованных карт нет</div>'; return; }
+
+  box.innerHTML = '<table class="runs"><tr><th>Под</th><th>Карта</th><th>Состояние</th>' +
+    '<th>Время</th><th>Потрачено</th><th></th></tr>' + r.pods.map(p => {
+      const state = p.deploy_state === 'ready' ? '<b>готов</b>'
+        : p.deploy_state === 'deploying' ? 'разворачивается…'
+        : p.deploy_state === 'failed' ? 'сбой'
+        : p.deploy_state === 'unmanaged' ? 'не из админки' : p.deploy_state;
+      return `<tr><td class="mono">${p.name || p.id}<br><span class="note">${p.photo_model || ''}` +
+        `${p.identity_mode ? ' · ' + p.identity_mode : ''}</span></td>` +
+        `<td>${p.gpu || ''}</td><td>${state}</td>` +
+        `<td>${p.uptime_min} мин</td><td>$${p.spent}</td>` +
+        `<td><button class="mini" onclick="podLog('${p.id}')">лог</button> ` +
+        (p.deploy_state === 'ready'
+          ? `<button class="mini" onclick="podTest('${p.id}')">пробный кадр</button> `
+            + `<button onclick="podFullRun('${p.id}')">весь пайплайн</button> ` : '') +
+        (p.known ? `<button class="mini" onclick="podRedeploy('${p.id}')">перезалить</button> ` : '') +
+        `<button class="mini" onclick="podDelete('${p.id}')">удалить</button></td></tr>` +
+        `<tr id="pod-row-${p.id}"><td colspan="6"></td></tr>`;
+    }).join('') + '</table>';
+  window._pods = r.pods;
+}
+
+function podLog(id) {
+  const pod = (window._pods || []).find(p => p.id === id);
+  const cell = document.querySelector('#pod-row-' + id + ' td');
+  cell.innerHTML = pod && pod.deploy_log
+    ? '<pre class="podlog">' + pod.deploy_log.replace(/</g, '&lt;') + '</pre>'
+    : '<div class="note">лог пуст (под создан не из админки)</div>';
+}
+
+async function podRedeploy(id) {
+  await fetch('/api/pods/' + id + '/redeploy', {method: 'POST'});
+  loadPods(true);
+}
+
+async function podDelete(id) {
+  if (!confirm('Удалить под ' + id + '? Всё, что не скачано с него, будет потеряно.')) return;
+  await fetch('/api/pods/' + id, {method: 'DELETE'});
+  loadPods(true);
+}
+
+// Весь пайплайн одной кнопкой: персонаж, пак кадров и видео. Идёт минутами, поэтому лог
+// показывается в общем блоке прогона — там же, где облачные запуски.
+async function podFullRun(id) {
+  const frames = document.getElementById('pod-frames').value;
+  if (!confirm('Запустить весь пайплайн на поде? Это займёт 10-20 минут GPU-времени.')) return;
+  const r = await (await fetch('/api/pods/' + id + '/full-run', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({frames: Number(frames)})
+  })).json();
+  const cell = document.querySelector('#pod-row-' + id + ' td');
+  cell.innerHTML = r.ok
+    ? '<div class="note">прогон запущен — смотрите лог ниже</div>'
+    : '<div class="note">ошибка: ' + r.error + '</div>';
+  if (r.ok) poll();
+}
+
+// Пробный кадр — проверка связки «карта + чекпойнт + фиксация лица» до того, как запускать
+// полный пак. Первый кадр долгий: тянется чекпойнт и грузится в память.
+async function podTest(id) {
+  const cell = document.querySelector('#pod-row-' + id + ' td');
+  cell.innerHTML = '<div class="note">генерирую пробный кадр (первый — до нескольких минут)…</div>';
+  const r = await (await fetch('/api/pods/' + id + '/generate', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({character: 'test'})
+  })).json();
+  if (!r.ok) { cell.innerHTML = '<div class="note">ошибка: ' + r.error + '</div>'; return; }
+  const res = r.result || {};
+  cell.innerHTML = (r.path ? `<img src="${fileUrl(r.path)}" style="max-width:320px">` : '') +
+    `<div class="note">${(res.duration_ms / 1000).toFixed(1)} с · seed ${res.seed}` +
+    (res.similarity != null ? ` · лицо ${res.similarity}` : '') + '</div>';
+}
+
+async function poll() {
+  const d = await (await fetch('/api/status')).json();
+  const log = document.getElementById('log');
+  if (d.lines.length) {
+    log.style.display = 'block';
+    const bottom = log.scrollTop + log.clientHeight >= log.scrollHeight - 30;
+    log.textContent = d.lines.join('\n');
+    if (bottom) log.scrollTop = log.scrollHeight;
+  }
+  document.getElementById('btn-run').disabled = d.running;
+  document.getElementById('btn-stop').disabled = !d.running;
+  if (d.running) setTimeout(poll, 1500);
+  else if (d.lines.length) {
+    msg('прогон завершён', 'ok');
+    // Прогон только что закончился — в архиве появился новый проект, обновляем список,
+    // иначе его пришлось бы искать перезагрузкой страницы.
+    if (runsLoaded) loadRuns(true);
+  }
+}
+
+// Применяем выбор пайплайна сразу: без этого страница открывается с чужими полями, пока
+// пользователь не тронет селектор.
+switchPipeline();
+poll();
+</script>
+</body>
+</html>

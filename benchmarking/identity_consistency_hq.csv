@@ -1,0 +1,22 @@
+source,label,cosine_similarity,verdict
+photo,photo_01_office.png,0.7323,тот же человек
+photo,photo_02_street.png,0.7305,тот же человек
+photo,photo_03_studio_sweater.png,0.6764,тот же человек
+photo,photo_04_park_autumn.png,0.7529,тот же человек
+photo,photo_05_cafe.png,0.737,тот же человек
+photo,photo_06_beach_swimsuit.png,0.7217,тот же человек
+photo,photo_07_gym.png,0.7198,тот же человек
+photo,photo_08_rooftop_evening.png,0.7419,тот же человек
+video_frame,frame 0,0.7532,тот же человек
+video_frame,frame 10,0.7186,тот же человек
+video_frame,frame 20,0.6986,тот же человек
+video_frame,frame 30,0.6971,тот же человек
+video_frame,frame 40,0.6875,тот же человек
+video_frame,frame 50,0.6927,тот же человек
+video_frame,frame 60,0.7017,тот же человек
+video_frame,frame 70,0.6916,тот же человек
+video_frame,frame 80,0.6985,тот же человек
+video_frame,frame 90,0.6887,тот же человек
+video_frame,frame 100,0.7127,тот же человек
+video_frame,frame 110,0.7045,тот же человек
+video_frame,frame 120,0.7091,тот же человек

@@ -1,0 +1,14 @@
+source,label,cosine_similarity,verdict
+video_frame,frame 0,0.4555,"тот же человек, дрейф"
+video_frame,frame 10,0.4254,ДРУГОЙ человек
+video_frame,frame 20,0.4122,ДРУГОЙ человек
+video_frame,frame 30,0.4069,ДРУГОЙ человек
+video_frame,frame 40,0.3907,ДРУГОЙ человек
+video_frame,frame 50,0.3762,ДРУГОЙ человек
+video_frame,frame 60,0.2603,ДРУГОЙ человек
+video_frame,frame 70,0.3131,ДРУГОЙ человек
+video_frame,frame 80,0.2691,ДРУГОЙ человек
+video_frame,frame 90,0.3128,ДРУГОЙ человек
+video_frame,frame 100,0.3031,ДРУГОЙ человек
+video_frame,frame 110,0.3523,ДРУГОЙ человек
+video_frame,frame 120,0.373,ДРУГОЙ человек
