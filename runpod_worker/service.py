@@ -141,10 +141,15 @@ class PhotoService:
 
     def create_character(self, name: str, *, reference_image: Optional[str] = None,
                          reference_path: Optional[str] = None, prompt: Optional[str] = None,
-                         seed: Optional[int] = None, overwrite: bool = False) -> dict:
+                         seed: Optional[int] = None, overwrite: bool = False,
+                         model_name: Optional[str] = None) -> dict:
         from worker.identity import detect_primary_face
 
         gen = self._get_generator()
+        # Эталон рисуется ТЕМ ЖЕ чекпойнтом, что и пак. Раньше здесь всегда стоял
+        # DEFAULT_PHOTO_MODEL, и при пробеге на другом чекпойнте похожесть считалась к лицу от
+        # чужой модели — заниженной оказывалась вся таблица разом, а причина в неё не попадала.
+        checkpoint = model_name or DEFAULT_PHOTO_MODEL
         ref: Optional[Path] = None
 
         if reference_image:
@@ -165,7 +170,7 @@ class PhotoService:
             # Эталона нет — рисуем его текстом, без IP-Adapter: опираться ещё не на что.
             from worker.models import PhotoGenerationRequest
 
-            req = PhotoGenerationRequest(model_name=DEFAULT_PHOTO_MODEL, prompt=prompt, seed=seed)
+            req = PhotoGenerationRequest(model_name=checkpoint, prompt=prompt, seed=seed)
             result = gen.generate(req)
             ref = Path(result.image_path)
 
@@ -175,7 +180,7 @@ class PhotoService:
             # выражения дали бы смазанное лицо на всём паке.
             for index, angle in enumerate(REFERENCE_ANGLES, start=1):
                 angled = gen.generate(PhotoGenerationRequest(
-                    model_name=DEFAULT_PHOTO_MODEL,
+                    model_name=checkpoint,
                     prompt=f"{prompt}, {angle}",
                     # Смещение 100 на ракурс: не пересекается с шагом 1000 между кадрами пака,
                     # поэтому прогон остаётся воспроизводимым.

@@ -107,7 +107,9 @@ def main() -> None:
                         help="ускоряющая LoRA: 4 шага вместо 40, впятеро быстрее, грубее")
     parser.add_argument("--video-source", default="look", choices=["look", "scene"],
                         help="кадр под ролик из ОБРАЗОВ (RESTYLE_*) или из СЦЕН (SCENE_*)")
-    parser.add_argument("--photo-model", default="realvis-xl")
+    # lustify, а не realvis-xl: проект про взрослый контент, и чекпойнт без ограничений здесь
+    # рабочий по умолчанию. realvis-xl остаётся выбором для обычной съёмки.
+    parser.add_argument("--photo-model", default="lustify")
     parser.add_argument("--identity-mode", default="portrait")
     # scale=0 — сцена рисуется БЕЗ FaceID. Это не «выключить идентичность», а двухэтапная схема:
     # личность вживляет детейлер вторым проходом. Замерено на поде: с FaceID на сцене лицо
@@ -233,7 +235,9 @@ def main() -> None:
         created = requests.post(
             f"{base}/characters", headers=headers, timeout=3600,
             json={"name": args.character, "prompt": reference_prompt,
-                  "seed": args.base_seed, "overwrite": True})
+                  "seed": seeds.reference_seed(), "overwrite": True,
+                  # Тот же чекпойнт, что у пака: иначе похожесть считается к чужому лицу.
+                  "model_name": args.photo_model})
         if created.status_code not in (200, 201):
             print(f"эталон не создан: {created.text[:300]}")
             raise SystemExit(1)

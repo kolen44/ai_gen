@@ -242,6 +242,10 @@ class CreateCharacterRequest(BaseModel):
                                   description="если эталона нет — сгенерировать его по описанию")
     seed: Optional[int] = Field(None, ge=0, le=2**32 - 1)
     overwrite: bool = False
+    # Чекпойнт, которым рисовать эталон. Должен совпадать с тем, которым считается пак: похожесть
+    # меряется к эталону, а у разных чекпойнтов разное представление о лице, и эталон от чужой
+    # модели систематически занижает косинус на всех кадрах сразу.
+    model_name: Optional[str] = Field(None, description="по умолчанию DEFAULT_PHOTO_MODEL")
 
     @model_validator(mode="after")
     def _need_source(self):

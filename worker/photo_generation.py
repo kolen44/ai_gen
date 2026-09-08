@@ -515,7 +515,7 @@ class PhotoGenerator:
 
     def extract_face_embedding(self, image_path: str | Path) -> list[float]:
         """Эмбеддинг эталонного лица (Stage 0 -> вход Stage 2). Обёртка над worker.identity —
-        отдельный метод здесь просто чтобы вызывающему коду (pipeline/generate_photos.py) не
+        отдельный метод здесь просто чтобы вызывающему коду не
         нужно было импортировать worker.identity напрямую."""
         from worker.identity import extract_embedding
 

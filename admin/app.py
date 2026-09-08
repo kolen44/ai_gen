@@ -751,6 +751,10 @@ def api_pods_full_run(pod_id: str):
         # Чекпойнт можно переопределить на запуск: он выбирается при аренде карты, но менять его
         # между прогонами дешевле, чем поднимать новый под — веса уже в кеше на диске.
         "--photo-model", payload.get("photo_model") or record.photo_model,
+        # Режим фиксации лица — так же из карточки пода. Раньше он туда записывался, уезжал на
+        # под переменной окружения, но в прогон не передавался: выбранный при аренде base или
+        # plusv2 молча подменялся умолчанием скрипта.
+        "--identity-mode", payload.get("identity_mode") or record.identity_mode or "portrait",
     ]
     if payload.get("fast_video"):
         args.append("--fast-video")

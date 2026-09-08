@@ -187,6 +187,7 @@ PHOTO_MODEL_CONFIGS = {
         "negative_prompt": REALISTIC_NEGATIVE_PROMPT,
     },
 }
+DEFAULT_PHOTO_MODEL = os.getenv("DEFAULT_PHOTO_MODEL", "realvis-xl")
 
 # === InstantID ===
 # Пробовали как второй канал фиксации лица (ControlNet на 5 точках поверх FaceID). Не заработало:
@@ -350,8 +351,6 @@ VIDEO_MODEL_CONFIGS = {
         "default_num_inference_steps": 50,  # официальный дефолт модели-карты
         "default_guidance_scale": 5.0,
     },
-    # Запасной вариант постарше (Wan 2.1) — оставлен на случай, если A14B не поместится по VRAM
-    # даже с офлоадом. pipeline_class_name резолвится так же лениво.
 }
 DEFAULT_VIDEO_MODEL = os.getenv("DEFAULT_VIDEO_MODEL", "wan2.2-ti2v-5b")
 

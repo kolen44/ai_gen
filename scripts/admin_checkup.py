@@ -158,8 +158,11 @@ def check_pod_run_contract(html: str, app_source: str) -> None:
         check(f"поле {field} принимается маршрутом", field in accepted,
               "" if field in accepted else "маршрут его игнорирует")
 
-    # И обратная сторона: маршрут не должен ждать того, чего интерфейс не шлёт.
-    unused = sorted(accepted - sent - {"character"})
+    # И обратная сторона: маршрут не должен ждать того, чего интерфейс не шлёт. Исключения —
+    # поля с осмысленным запасным источником: character задаётся отдельно, identity_mode
+    # подхватывается из карточки пода, video_frames остаётся ручкой командной строки.
+    expected_extra = {"character", "identity_mode", "video_frames"}
+    unused = sorted(accepted - sent - expected_extra)
     check("маршрут не ждёт лишних полей", not unused, ", ".join(unused), warn_only=True)
 
 
@@ -439,6 +442,62 @@ def check_cloud_video(html: str, app_source: str) -> None:
           f"нет в клиенте: {unknown}" if unknown else f"проверено {len(VIDEO_MODELS)}")
 
 
+def check_imports() -> None:
+    """Каждый модуль должен импортироваться.
+
+    Проверка родилась после реального сбоя: уборка мёртвого кода унесла вместе с ним
+    DEFAULT_PHOTO_MODEL из worker/config.py, а его импортирует runpod_worker/models.py на старте.
+    Синтаксис при этом оставался валидным, все статические проверки проходили, и заметно это
+    стало бы только при попытке поднять воркер на арендованной карте.
+
+    Тяжёлые модули (torch, diffusers) грузятся долго, поэтому проверяются только те, что нужны
+    на старте воркера и админки, — остальные импортируются лениво уже во время работы.
+    """
+    import importlib
+
+    modules = [
+        "worker.config", "worker.models", "worker.seed_manager",
+        "runpod_worker.models", "runpod_worker.config",
+        "pipeline.prompt_config", "pipeline.run_pipeline", "pipeline.flaq_video",
+        "pipeline.fal_video", "pipeline.flaq_client",
+        "safety.moderation_pipeline", "admin.runpod_pods",
+    ]
+    broken = []
+    for name in modules:
+        try:
+            importlib.import_module(name)
+        except Exception as exc:  # noqa: BLE001
+            broken.append(f"{name}: {type(exc).__name__}: {exc}")
+    check("модули импортируются", not broken,
+          "; ".join(broken) if broken else f"проверено {len(modules)}")
+
+
+def check_reference_checkpoint() -> None:
+    """Эталон рисуется тем же чекпойнтом, что и пак.
+
+    Похожесть меряется к эталону, а у разных чекпойнтов разное представление о лице. Пока эталон
+    жёстко рисовался DEFAULT_PHOTO_MODEL, прогон на другом чекпойнте сравнивался с лицом от чужой
+    модели: занижалась вся таблица разом, и причина в неё не попадала.
+    """
+    service = (ROOT / "runpod_worker" / "service.py").read_text(encoding="utf-8")
+    runner = (ROOT / "scripts" / "pod_full_run.py").read_text(encoding="utf-8")
+    models = (ROOT / "runpod_worker" / "models.py").read_text(encoding="utf-8")
+
+    check("схема персонажа принимает чекпойнт", "model_name: Optional[str]" in models)
+    check("сервис берёт переданный чекпойнт",
+          "checkpoint = model_name or DEFAULT_PHOTO_MODEL" in service)
+    check("эталон рисуется тем же чекпойнтом, что и пак",
+          '"model_name": args.photo_model})' in runner,
+          "иначе похожесть считается к лицу от другой модели")
+
+    # Настройки, выбранные при аренде карты, должны доезжать до прогона. Чекпойнт доезжал,
+    # режим фиксации лица — нет: он записывался в карточку пода и там оставался.
+    app = APP.read_text(encoding="utf-8")
+    for flag, field in (("--photo-model", "photo_model"), ("--identity-mode", "identity_mode")):
+        check(f"{field} из карточки пода доезжает до прогона",
+              f'"{flag}", payload.get("{field}")' in app)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--live", action="store_true", help="плюс запросы к запущенной админке")
@@ -462,6 +521,10 @@ def main() -> None:
     check_scripts(app_source)
     print("=== слои ===")
     check_layers()
+    print("=== импорт ===")
+    check_imports()
+    print("=== эталон ===")
+    check_reference_checkpoint()
     print("=== видео на облачном пути ===")
     check_cloud_video(html, app_source)
     if args.live:

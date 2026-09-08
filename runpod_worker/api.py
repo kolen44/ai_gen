@@ -108,7 +108,8 @@ async def create_character(req: CreateCharacterRequest):
     try:
         data = service.create_character(
             req.name, reference_image=req.reference_image, reference_path=req.reference_path,
-            prompt=req.prompt, seed=req.seed, overwrite=req.overwrite)
+            prompt=req.prompt, seed=req.seed, overwrite=req.overwrite,
+            model_name=req.model_name)
     except (ServiceError, characters.CharacterError) as e:
         raise HTTPException(status_code=400, detail=str(e))
     return CharacterInfo(name=data["name"], created_at=data["created_at"],

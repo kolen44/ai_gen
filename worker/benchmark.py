@@ -1,7 +1,7 @@
 """
 Дописывает строки в benchmarking/benchmark_log.csv по факту каждой реальной генерации — раньше
-это предлагалось делать вручную через deploy/cost_calculator.py, теперь pipeline/generate_photos.py
-и pipeline/image_to_video.py делают это сами, без ручного шага после каждого фото/видео.
+это предлагалось делать вручную через deploy/cost_calculator.py, теперь генерация
+пишет строку сама, без ручного шага после каждого фото или ролика.
 """
 
 from __future__ import annotations

@@ -267,7 +267,7 @@ def load_numbered(prefix: str, env: Optional[dict[str, str]] = None) -> list[str
 
 
 def load_restyle_prompts(env: Optional[dict[str, str]] = None) -> list[str]:
-    """Образы для i2i-перегенерации готового кадра (pipeline/restyle.py)."""
+    """Образы для перегенерации готового кадра — шаг 3."""
     env = env if env is not None else _read_env_file()
     return _numbered(env, "RESTYLE")
 
